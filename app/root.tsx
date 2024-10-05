@@ -6,13 +6,17 @@ import type {
   LoaderFunctionArgs,
 } from '@remix-run/node'
 import {
+  json,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from '@remix-run/react'
-import { Toaster } from 'react-hot-toast'
+import { useEffect } from 'react'
+import { toast as notify, Toaster } from 'react-hot-toast'
+import { getToast } from 'remix-toast'
 import './tailwind.css'
 
 export const links: LinksFunction = () => [
@@ -28,10 +32,26 @@ export const links: LinksFunction = () => [
   },
 ]
 
-export const loader: LoaderFunction = (args: LoaderFunctionArgs) =>
-  rootAuthLoader(args)
+export const loader: LoaderFunction = (args: LoaderFunctionArgs) => {
+  return rootAuthLoader(args, async () => {
+    const { toast, headers } = await getToast(args.request)
+    return json({ toast }, { headers })
+  })
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { toast } = useLoaderData<typeof loader>()
+
+  useEffect(() => {
+    if (toast) {
+      if (toast.type === 'success') {
+        notify.success(toast.message)
+      } else if (toast.type === 'error') {
+        notify.error(toast.message)
+      }
+    }
+  }, [toast])
+
   return (
     <html lang="en">
       <head>

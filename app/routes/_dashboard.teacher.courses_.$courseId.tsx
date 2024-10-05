@@ -8,6 +8,11 @@ import {
 } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { LayoutDashboard } from 'lucide-react'
+import { jsonWithError, jsonWithSuccess } from 'remix-toast'
+import {
+  DescriptionForm,
+  descriptionFormSchema,
+} from '~/components/DescriptionForm'
 import { IconBadge } from '~/components/IconBadge'
 import { TitleForm, titleFormSchema } from '~/components/TitleForm'
 import { db } from '~/lib/db.server'
@@ -68,6 +73,8 @@ export default function TeacherCoursePage() {
           </div>
 
           <TitleForm initialData={course.title} />
+
+          <DescriptionForm initialData={course.description} />
         </div>
       </div>
     </div>
@@ -81,23 +88,31 @@ export async function action(args: ActionFunctionArgs) {
     return redirect('/sign-in?redirect_url=' + args.request.url)
   }
 
+  // TODO: check if the user is the owner of the course
+
   const formData = await args.request.formData()
 
   let submission
 
   if (formData.get('intent') === 'updateTitle') {
     submission = parseWithZod(formData, { schema: titleFormSchema })
+  } else if (formData.get('intent') === 'updateDescription') {
+    submission = parseWithZod(formData, { schema: descriptionFormSchema })
   }
 
   if (submission?.status === 'success') {
     await db.course.update({
       where: {
         id: args.params.courseId,
+        userId,
       },
       data: submission.value,
     })
-    return json({ ok: true } as const)
+    return jsonWithSuccess({ ok: true }, 'Course updated successfully! 🎉')
   }
 
-  return json({ ok: false } as const)
+  return jsonWithError(
+    { ok: false },
+    'Oops! Something went wrong. Please try again later.',
+  )
 }

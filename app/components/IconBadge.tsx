@@ -3,7 +3,7 @@ import { LucideIcon } from 'lucide-react'
 import { cn } from '~/lib/utils'
 
 const backgroundVariants = cva(
-  'rounded-full flex items-center justify-center',
+  'rounded-full flex items-center justify-center size-8',
   {
     variants: {
       variant: {
@@ -29,8 +29,8 @@ const iconVariants = cva('', {
       success: 'text-emerald-700',
     },
     size: {
-      default: 'w-8 h-8',
-      sm: 'w-4 h-4',
+      default: 'size-6',
+      sm: 'size-4',
     },
   },
   defaultVariants: {
