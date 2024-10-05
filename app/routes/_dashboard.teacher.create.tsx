@@ -1,3 +1,4 @@
+import { getAuth } from '@clerk/remix/ssr.server'
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { ActionFunctionArgs, json, redirect } from '@remix-run/node'
@@ -6,6 +7,7 @@ import { z } from 'zod'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import { db } from '~/lib/db.server'
 
 const schema = z.object({
   title: z.string({
@@ -13,8 +15,14 @@ const schema = z.object({
   }),
 })
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData()
+export const action = async (args: ActionFunctionArgs) => {
+  const { userId } = await getAuth(args)
+
+  if (!userId) {
+    return redirect('/sign-in?redirect_url=' + args.request.url)
+  }
+
+  const formData = await args.request.formData()
   const submission = parseWithZod(formData, { schema })
 
   if (submission.status !== 'success') {
@@ -22,9 +30,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   try {
-    // const response = await axios.post('/api/courses', { title })
-    console.log(submission.value)
-    return redirect(`/teacher/courses/${'123'}`)
+    const course = await db.course.create({
+      data: {
+        title: submission.value.title,
+        userId,
+      },
+    })
+
+    return redirect(`/teacher/courses/${course.id}`)
   } catch {
     return json({ error: 'Something went wrong' }, { status: 500 })
   }
