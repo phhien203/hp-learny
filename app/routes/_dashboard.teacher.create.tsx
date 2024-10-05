@@ -1,18 +1,29 @@
+import { getFormProps, getInputProps, useForm } from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { ActionFunctionArgs, json, redirect } from '@remix-run/node'
-import * as z from 'zod'
+import { Form, Link } from '@remix-run/react'
+import { z } from 'zod'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
 
-const formSchema = z.object({
-  title: z.string().min(1, {
-    message: 'Title is required',
+const schema = z.object({
+  title: z.string({
+    required_error: 'Title is required',
   }),
 })
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData()
-  const title = formData.get('title')
+  const submission = parseWithZod(formData, { schema })
+
+  if (submission.status !== 'success') {
+    return json(submission.reply())
+  }
 
   try {
     // const response = await axios.post('/api/courses', { title })
+    console.log(submission.value)
     return redirect(`/teacher/courses/${'123'}`)
   } catch {
     return json({ error: 'Something went wrong' }, { status: 500 })
@@ -20,6 +31,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 }
 
 export default function TeacherCreatePage() {
+  const [form, fields] = useForm({
+    constraint: getZodConstraint(schema),
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema })
+    },
+    shouldValidate: 'onBlur',
+    shouldRevalidate: 'onInput',
+  })
+
   return (
     <div className="mx-auto flex h-full max-w-5xl p-6 md:items-center md:justify-center">
       <div>
@@ -29,6 +49,38 @@ export default function TeacherCreatePage() {
           What would you like to name your course? Don&apos;t worry, you can
           change it later.
         </p>
+
+        <Form method="post" className="mt-8 space-y-6" {...getFormProps(form)}>
+          <div>
+            <Label htmlFor={fields.title.id}>Course Title</Label>
+
+            <Input
+              {...getInputProps(fields.title, {
+                type: 'text',
+              })}
+              placeholder="e.g. 'The Complete Web Developer Course'"
+              className="mt-2"
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
+            />
+
+            <div className="mt-2 h-4 text-xs text-red-500">
+              {fields.title.errors}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-x-2">
+            <Link to="/">
+              <Button type="button" variant="ghost">
+                Cancel
+              </Button>
+            </Link>
+
+            <Button type="submit" disabled={!form.valid}>
+              Continue
+            </Button>
+          </div>
+        </Form>
       </div>
     </div>
   )
