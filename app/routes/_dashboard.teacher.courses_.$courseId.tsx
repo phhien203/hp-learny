@@ -9,6 +9,7 @@ import {
 import { useLoaderData } from '@remix-run/react'
 import { LayoutDashboard } from 'lucide-react'
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
+import { CategoryForm, categoryFormSchema } from '~/components/CategoryForm'
 import {
   DescriptionForm,
   descriptionFormSchema,
@@ -35,11 +36,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect('/teacher/courses')
   }
 
-  return json({ course })
+  const categories = await db.category.findMany({
+    orderBy: {
+      name: 'asc',
+    },
+  })
+
+  return json({ course, categories })
 }
 
 export default function TeacherCoursePage() {
-  const { course } = useLoaderData<typeof loader>()
+  const { course, categories } = useLoaderData<typeof loader>()
 
   const requiredFields = [
     course.title,
@@ -78,6 +85,14 @@ export default function TeacherCoursePage() {
           <DescriptionForm initialData={course.description} />
 
           <ImageForm initialData={course} />
+
+          <CategoryForm
+            initialData={course.categoryId}
+            options={categories.map((category) => ({
+              value: category.id,
+              label: category.name,
+            }))}
+          />
         </div>
       </div>
     </div>
@@ -103,6 +118,8 @@ export async function action(args: ActionFunctionArgs) {
     submission = parseWithZod(formData, { schema: descriptionFormSchema })
   } else if (formData.get('intent') === 'updateImage') {
     submission = parseWithZod(formData, { schema: imageFormSchema })
+  } else if (formData.get('intent') === 'updateCategory') {
+    submission = parseWithZod(formData, { schema: categoryFormSchema })
   }
 
   if (submission?.status === 'success') {
