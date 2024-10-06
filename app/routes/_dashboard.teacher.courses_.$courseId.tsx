@@ -7,7 +7,11 @@ import {
   redirect,
 } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { LayoutDashboard } from 'lucide-react'
+import {
+  CircleDollarSignIcon,
+  LayoutDashboard,
+  ListChecksIcon,
+} from 'lucide-react'
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 import { CategoryForm, categoryFormSchema } from '~/components/CategoryForm'
 import {
@@ -16,6 +20,7 @@ import {
 } from '~/components/DescriptionForm'
 import { IconBadge } from '~/components/IconBadge'
 import { ImageForm, imageFormSchema } from '~/components/ImageForm'
+import { PriceForm, priceFormSchema } from '~/components/PriceForm'
 import { TitleForm, titleFormSchema } from '~/components/TitleForm'
 import { db } from '~/lib/db.server'
 
@@ -94,6 +99,26 @@ export default function TeacherCoursePage() {
             }))}
           />
         </div>
+
+        <div className="space-y-6">
+          <div>
+            <div className="flex items-center gap-x-2">
+              <IconBadge icon={ListChecksIcon} size="sm" />
+              <h2 className="text-xl">Course chapters</h2>
+            </div>
+
+            <div>TODO: chapters</div>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-x-2">
+              <IconBadge icon={CircleDollarSignIcon} size="sm" />
+              <h2 className="text-xl">Sell your course</h2>
+            </div>
+
+            <PriceForm initialData={course.price} />
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -120,6 +145,8 @@ export async function action(args: ActionFunctionArgs) {
     submission = parseWithZod(formData, { schema: imageFormSchema })
   } else if (formData.get('intent') === 'updateCategory') {
     submission = parseWithZod(formData, { schema: categoryFormSchema })
+  } else if (formData.get('intent') === 'updatePrice') {
+    submission = parseWithZod(formData, { schema: priceFormSchema })
   }
 
   if (submission?.status === 'success') {
