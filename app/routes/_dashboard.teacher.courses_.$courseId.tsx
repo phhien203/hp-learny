@@ -9,10 +9,12 @@ import {
 import { useLoaderData } from '@remix-run/react'
 import {
   CircleDollarSignIcon,
+  FileIcon,
   LayoutDashboard,
   ListChecksIcon,
 } from 'lucide-react'
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
+import { AttachmentForm } from '~/components/AttachmentForm'
 import { CategoryForm, categoryFormSchema } from '~/components/CategoryForm'
 import {
   DescriptionForm,
@@ -34,6 +36,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const course = await db.course.findUnique({
     where: {
       id: args.params.courseId,
+    },
+    include: {
+      attachments: {
+        orderBy: {
+          createdAt: 'desc',
+        },
+      },
     },
   })
 
@@ -117,6 +126,15 @@ export default function TeacherCoursePage() {
             </div>
 
             <PriceForm initialData={course.price} />
+          </div>
+
+          <div>
+            <div className="flex items-center gap-x-2">
+              <IconBadge icon={FileIcon} size="sm" />
+              <h2 className="text-xl">Attachments</h2>
+            </div>
+
+            <AttachmentForm initialData={course} courseId={course.id} />
           </div>
         </div>
       </div>
