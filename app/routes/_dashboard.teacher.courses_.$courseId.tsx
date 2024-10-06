@@ -16,6 +16,7 @@ import {
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 import { AttachmentForm } from '~/components/AttachmentForm'
 import { CategoryForm, categoryFormSchema } from '~/components/CategoryForm'
+import { ChaptersForm } from '~/components/ChaptersForm'
 import {
   DescriptionForm,
   descriptionFormSchema,
@@ -43,6 +44,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
           createdAt: 'desc',
         },
       },
+      chapters: {
+        orderBy: {
+          position: 'asc',
+        },
+      },
     },
   })
 
@@ -68,6 +74,7 @@ export default function TeacherCoursePage() {
     course.imageUrl,
     course.price,
     course.categoryId,
+    course.chapters.some((chapter) => chapter.isPublished),
   ]
 
   const totalFields = requiredFields.length
@@ -116,7 +123,7 @@ export default function TeacherCoursePage() {
               <h2 className="text-xl">Course chapters</h2>
             </div>
 
-            <div>TODO: chapters</div>
+            <ChaptersForm initialData={course} courseId={course.id} />
           </div>
 
           <div>
