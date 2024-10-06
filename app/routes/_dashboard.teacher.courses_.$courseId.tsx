@@ -14,6 +14,7 @@ import {
   descriptionFormSchema,
 } from '~/components/DescriptionForm'
 import { IconBadge } from '~/components/IconBadge'
+import { ImageForm, imageFormSchema } from '~/components/ImageForm'
 import { TitleForm, titleFormSchema } from '~/components/TitleForm'
 import { db } from '~/lib/db.server'
 
@@ -75,6 +76,8 @@ export default function TeacherCoursePage() {
           <TitleForm initialData={course.title} />
 
           <DescriptionForm initialData={course.description} />
+
+          <ImageForm initialData={course} />
         </div>
       </div>
     </div>
@@ -98,6 +101,8 @@ export async function action(args: ActionFunctionArgs) {
     submission = parseWithZod(formData, { schema: titleFormSchema })
   } else if (formData.get('intent') === 'updateDescription') {
     submission = parseWithZod(formData, { schema: descriptionFormSchema })
+  } else if (formData.get('intent') === 'updateImage') {
+    submission = parseWithZod(formData, { schema: imageFormSchema })
   }
 
   if (submission?.status === 'success') {
@@ -108,6 +113,7 @@ export async function action(args: ActionFunctionArgs) {
       },
       data: submission.value,
     })
+
     return jsonWithSuccess({ ok: true }, 'Course updated successfully! 🎉')
   }
 
