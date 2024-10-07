@@ -90,7 +90,7 @@ export function ChaptersList({ items, onReorder, onEdit }: ChaptersListProps) {
 
                     {chapter.title}
 
-                    <div className="mr-auto flex items-center gap-x-2 pr-2">
+                    <div className="ml-auto flex items-center gap-x-2 pr-2">
                       {chapter.isFree && <Badge>Free</Badge>}
 
                       <Badge
