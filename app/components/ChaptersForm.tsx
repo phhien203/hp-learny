@@ -1,12 +1,13 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
-import { useFetcher } from '@remix-run/react'
-import { PlusCircleIcon } from 'lucide-react'
+import { useFetcher, useNavigate } from '@remix-run/react'
+import { Loader2Icon, PlusCircleIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { Button } from '~/components/ui/button'
-import { Input } from './ui/input'
 import { cn } from '~/lib/utils'
+import { ChaptersList } from './ChaptersList'
+import { Input } from './ui/input'
 
 export const chaptersFormSchema = z.object({
   title: z.string({ required_error: 'Title is required' }).min(1, {
@@ -15,7 +16,14 @@ export const chaptersFormSchema = z.object({
 })
 
 interface ChaptersFormProps {
-  initialData: { chapters: { id: string; title: string }[] }
+  initialData: {
+    chapters: {
+      id: string
+      title: string
+      isPublished: boolean
+      isFree: boolean
+    }[]
+  }
   courseId: string
 }
 
@@ -32,7 +40,10 @@ export function ChaptersForm({ initialData, courseId }: ChaptersFormProps) {
     },
   })
   const fetcher = useFetcher()
+  const reorderFetcher = useFetcher()
+  const navigate = useNavigate()
   const [isCreating, setIsCreating] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
 
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {
@@ -40,8 +51,38 @@ export function ChaptersForm({ initialData, courseId }: ChaptersFormProps) {
     }
   }, [fetcher.state, fetcher.data])
 
+  useEffect(() => {
+    if (reorderFetcher.state === 'idle' && reorderFetcher.data) {
+      setIsUpdating(false)
+    }
+  }, [reorderFetcher.state, reorderFetcher.data])
+
+  const onReorder = (bulkUpdateData: { id: string; position: number }[]) => {
+    setIsUpdating(true)
+
+    console.log(bulkUpdateData)
+
+    reorderFetcher.submit(
+      { list: JSON.stringify(bulkUpdateData) },
+      {
+        method: 'post',
+        action: `/api/courses/${courseId}/chapters/reorder`,
+      },
+    )
+  }
+
+  const onEdit = async (chapterId: string) => {
+    navigate(`/teacher/courses/${courseId}/chapters/${chapterId}`)
+  }
+
   return (
-    <div className="mt-6 rounded-md border bg-slate-100 p-4">
+    <div className="relative mt-6 rounded-md border bg-slate-100 p-4">
+      {isUpdating && (
+        <div className="absolute right-0 top-0 flex h-full w-full items-center justify-center bg-slate-500/20">
+          <Loader2Icon className="size-6 animate-spin text-sky-700" />
+        </div>
+      )}
+
       <div className="flex items-center justify-between font-medium">
         Course chapters
         <Button
@@ -102,13 +143,14 @@ export function ChaptersForm({ initialData, courseId }: ChaptersFormProps) {
           )}
         >
           {!initialData.chapters.length && 'No chapters'}
+
+          <ChaptersList
+            items={initialData.chapters}
+            onEdit={onEdit}
+            onReorder={onReorder}
+          />
         </div>
       )}
-
-      {!isCreating &&
-        initialData.chapters.map((chapter) => (
-          <div key={chapter.id}>{chapter.title}</div>
-        ))}
 
       {!isCreating && (
         <p className="mt-4 text-xs text-muted-foreground">
