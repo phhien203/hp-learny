@@ -7,8 +7,17 @@ import {
   redirect,
 } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
-import { ArrowLeftIcon, LayoutDashboard } from 'lucide-react'
+import {
+  ArrowLeftIcon,
+  EyeIcon,
+  LayoutDashboard,
+  VideoIcon,
+} from 'lucide-react'
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
+import {
+  ChapterAccessForm,
+  chapterAccessFormSchema,
+} from '~/components/ChapterAccessForm'
 import {
   ChapterDescriptionForm,
   chapterDescriptionFormSchema,
@@ -102,6 +111,24 @@ export default function ChapterPage() {
 
             <ChapterDescriptionForm initialData={chapter.description} />
           </div>
+
+          <div>
+            <div className="flex items-center gap-x-2">
+              <IconBadge icon={EyeIcon} size="sm" />
+              <h2 className="text-xl">Access Settings</h2>
+            </div>
+
+            <ChapterAccessForm initialData={chapter.isFree} />
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center gap-x-2">
+            <IconBadge icon={VideoIcon} size="sm" />
+            <h2 className="text-xl">Add a video</h2>
+          </div>
+
+          {/* <ChapterVideoForm /> */}
         </div>
       </div>
     </div>
@@ -124,6 +151,10 @@ export async function action(args: ActionFunctionArgs) {
   } else if (formData.get('intent') === 'updateChapterDescription') {
     submission = parseWithZod(formData, {
       schema: chapterDescriptionFormSchema,
+    })
+  } else if (formData.get('intent') === 'updateChapterAccess') {
+    submission = parseWithZod(formData, {
+      schema: chapterAccessFormSchema,
     })
   }
 
