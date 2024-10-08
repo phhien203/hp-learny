@@ -82,3 +82,19 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.ql-container:not(.ql-disabled) {
+  @apply bg-white;
+}
+
+.ql-container.ql-disabled {
+  @apply !border-transparent;
+
+  p {
+    @apply text-sm;
+  }
+}
+
+.ql-editor[contenteditable='false'] {
+  @apply p-0;
+}

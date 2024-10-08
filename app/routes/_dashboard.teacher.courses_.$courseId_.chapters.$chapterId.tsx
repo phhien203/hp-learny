@@ -9,6 +9,10 @@ import {
 import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { ArrowLeftIcon, LayoutDashboard } from 'lucide-react'
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
+import {
+  ChapterDescriptionForm,
+  chapterDescriptionFormSchema,
+} from '~/components/ChapterDescriptionForm'
 import { ChapterTitleForm } from '~/components/ChapterTitleForm'
 import { IconBadge } from '~/components/IconBadge'
 import { titleFormSchema } from '~/components/TitleForm'
@@ -95,6 +99,8 @@ export default function ChapterPage() {
             </div>
 
             <ChapterTitleForm initialData={chapter.title} />
+
+            <ChapterDescriptionForm initialData={chapter.description} />
           </div>
         </div>
       </div>
@@ -115,6 +121,10 @@ export async function action(args: ActionFunctionArgs) {
 
   if (formData.get('intent') === 'updateChapterTitle') {
     submission = parseWithZod(formData, { schema: titleFormSchema })
+  } else if (formData.get('intent') === 'updateChapterDescription') {
+    submission = parseWithZod(formData, {
+      schema: chapterDescriptionFormSchema,
+    })
   }
 
   if (submission?.status === 'success') {

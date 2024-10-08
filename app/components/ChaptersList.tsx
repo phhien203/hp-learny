@@ -79,7 +79,7 @@ export function ChaptersList({ items, onReorder, onEdit }: ChaptersListProps) {
                   >
                     <div
                       className={cn(
-                        'rounded-l-md border-r border-r-slate-200 px-2 py-3 transition hover:bg-slate-300',
+                        'cursor-move rounded-l-md border-r border-r-slate-200 px-2 py-3 transition hover:bg-slate-300',
                         chapter.isPublished &&
                           'border-r-sky-200 hover:bg-sky-200',
                       )}
