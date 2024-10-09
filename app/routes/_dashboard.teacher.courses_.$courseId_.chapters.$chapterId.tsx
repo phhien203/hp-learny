@@ -4,6 +4,7 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
+  unstable_parseMultipartFormData as parseMultipartFormData,
   redirect,
 } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
@@ -23,9 +24,12 @@ import {
   chapterDescriptionFormSchema,
 } from '~/components/ChapterDescriptionForm'
 import { ChapterTitleForm } from '~/components/ChapterTitleForm'
+import { ChapterVideoForm } from '~/components/ChapterVideoForm'
 import { IconBadge } from '~/components/IconBadge'
 import { titleFormSchema } from '~/components/TitleForm'
 import { db } from '~/lib/db.server'
+import { mux } from '~/lib/mux.server'
+import { supabaseUploadHandler } from '~/lib/supabase.server'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)
@@ -128,7 +132,10 @@ export default function ChapterPage() {
             <h2 className="text-xl">Add a video</h2>
           </div>
 
-          {/* <ChapterVideoForm /> */}
+          <ChapterVideoForm
+            playbackId={chapter.muxData?.playbackId}
+            videoUrl={chapter.videoUrl}
+          />
         </div>
       </div>
     </div>
@@ -140,6 +147,59 @@ export async function action(args: ActionFunctionArgs) {
 
   if (!userId) {
     return redirect('/sign-in?redirect_url=' + args.request.url)
+  }
+
+  if (
+    args.request.headers.get('Content-Type')?.includes('multipart/form-data')
+  ) {
+    const formData = await parseMultipartFormData(
+      args.request,
+      supabaseUploadHandler(args.params.chapterId!),
+    )
+    console.log('videoUrl', formData.get('video'))
+
+    if (formData.get('video')) {
+      await db.chapter.update({
+        where: {
+          id: args.params.chapterId,
+        },
+        data: {
+          videoUrl: formData.get('video') as string,
+        },
+      })
+
+      const existingMuxData = await db.muxData.findFirst({
+        where: {
+          chapterId: args.params.chapterId,
+        },
+      })
+
+      if (existingMuxData) {
+        await mux.video.assets.delete(existingMuxData.assetId)
+        await db.muxData.delete({
+          where: {
+            id: existingMuxData.id,
+          },
+        })
+      }
+
+      const asset = await mux.video.assets.create({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        input: formData.get('video') as any,
+        playback_policy: ['public'],
+        test: false,
+      })
+
+      await db.muxData.create({
+        data: {
+          chapterId: args.params.chapterId!,
+          assetId: asset.id,
+          playbackId: asset.playback_ids?.[0]?.id,
+        },
+      })
+
+      return jsonWithSuccess({ ok: true }, 'Chapter updated successfully! 🎉')
+    }
   }
 
   const formData = await args.request.formData()

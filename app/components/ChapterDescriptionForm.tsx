@@ -24,6 +24,7 @@ interface ChapterDescriptionFormProps {
 export function ChapterDescriptionForm({
   initialData,
 }: ChapterDescriptionFormProps) {
+  const [isMounted, setIsMounted] = useState(false)
   const [form, fields] = useForm({
     defaultValue: {
       description: initialData ?? '',
@@ -39,10 +40,16 @@ export function ChapterDescriptionForm({
   const [isEditing, setIsEditing] = useState(false)
 
   useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {
       setIsEditing(false)
     }
   }, [fetcher.state, fetcher.data])
+
+  if (!isMounted) return null
 
   return (
     <div className="mt-6 rounded-md border bg-slate-100 p-4">
@@ -65,7 +72,7 @@ export function ChapterDescriptionForm({
       </div>
 
       {!isEditing && (
-        <p
+        <div
           className={cn(
             'mt-2 text-sm',
             !initialData && 'italic text-slate-500',
@@ -80,7 +87,7 @@ export function ChapterDescriptionForm({
               {() => <Preview defaultValue={initialData ?? ''} />}
             </ClientOnly>
           )}
-        </p>
+        </div>
       )}
 
       {isEditing ? (
