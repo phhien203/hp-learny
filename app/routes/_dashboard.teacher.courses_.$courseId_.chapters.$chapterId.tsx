@@ -24,12 +24,15 @@ import {
   chapterDescriptionFormSchema,
 } from '~/components/ChapterDescriptionForm'
 import { ChapterTitleForm } from '~/components/ChapterTitleForm'
-import { ChapterVideoForm } from '~/components/ChapterVideoForm'
+import {
+  ChapterVideoForm,
+  chapterVideoFormSchema,
+} from '~/components/ChapterVideoForm'
 import { IconBadge } from '~/components/IconBadge'
 import { titleFormSchema } from '~/components/TitleForm'
 import { db } from '~/lib/db.server'
 import { mux } from '~/lib/mux.server'
-import { supabaseUploadHandler } from '~/lib/supabase.server'
+import { getVideoUrl, supabaseUploadHandler } from '~/lib/supabase.server'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)
@@ -216,9 +219,61 @@ export async function action(args: ActionFunctionArgs) {
     submission = parseWithZod(formData, {
       schema: chapterAccessFormSchema,
     })
+  } else if (formData.get('intent') === 'updateChapterVideoUrl') {
+    submission = parseWithZod(formData, {
+      schema: chapterVideoFormSchema,
+    })
   }
 
   if (submission?.status === 'success') {
+    const submissionValue = submission.value as { videoUrl: string }
+    const videoName = submissionValue.videoUrl
+
+    if (videoName) {
+      const videoUrl = getVideoUrl(videoName)
+
+      await db.chapter.update({
+        where: {
+          id: args.params.chapterId,
+        },
+        data: {
+          videoUrl: videoUrl,
+        },
+      })
+
+      const existingMuxData = await db.muxData.findFirst({
+        where: {
+          chapterId: args.params.chapterId,
+        },
+      })
+
+      if (existingMuxData) {
+        await mux.video.assets.delete(existingMuxData.assetId)
+        await db.muxData.delete({
+          where: {
+            id: existingMuxData.id,
+          },
+        })
+      }
+
+      const asset = await mux.video.assets.create({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        input: videoUrl as any,
+        playback_policy: ['public'],
+        test: false,
+      })
+
+      await db.muxData.create({
+        data: {
+          chapterId: args.params.chapterId!,
+          assetId: asset.id,
+          playbackId: asset.playback_ids?.[0]?.id,
+        },
+      })
+
+      return jsonWithSuccess({ ok: true }, 'Chapter updated successfully! 🎉')
+    }
+
     await db.chapter.update({
       where: {
         id: args.params.chapterId,
