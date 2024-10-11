@@ -1,4 +1,4 @@
-import { getFormProps, getInputProps, useForm } from '@conform-to/react'
+import { getFormProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { useFetcher } from '@remix-run/react'
 import { PencilIcon } from 'lucide-react'
@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { Button } from '~/components/ui/button'
 import { cn } from '~/lib/utils'
+import { Checkbox } from './ui/checkbox'
 
 export const chapterAccessFormSchema = z.object({
   isFree: z.coerce.boolean().default(false),
@@ -78,8 +79,14 @@ export function ChapterAccessForm({ initialData }: ChapterAccessFormProps) {
           {...getFormProps(form)}
         >
           <div>
-            <input
+            {/* <input
               {...getInputProps(fields.isFree, { type: 'checkbox' })}
+              defaultChecked={Boolean(initialData)}
+            /> */}
+
+            <Checkbox
+              id={fields.isFree.id}
+              name={fields.isFree.name}
               defaultChecked={Boolean(initialData)}
             />
 

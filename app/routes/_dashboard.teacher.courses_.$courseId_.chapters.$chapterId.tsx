@@ -4,10 +4,10 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
-  unstable_parseMultipartFormData as parseMultipartFormData,
-  redirect,
+  redirect
 } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
+import crypto from 'crypto'
 import {
   ArrowLeftIcon,
   EyeIcon,
@@ -20,6 +20,7 @@ import {
   redirectWithSuccess,
 } from 'remix-toast'
 import { Banner } from '~/components/Banner'
+import { BunnyChapterVideoForm } from '~/components/BunnyChapterVideoForm'
 import {
   ChapterAccessForm,
   chapterAccessFormSchema,
@@ -30,15 +31,10 @@ import {
   chapterDescriptionFormSchema,
 } from '~/components/ChapterDescriptionForm'
 import { ChapterTitleForm } from '~/components/ChapterTitleForm'
-import {
-  ChapterVideoForm,
-  chapterVideoFormSchema,
-} from '~/components/ChapterVideoForm'
+import { chapterVideoFormSchema } from '~/components/ChapterVideoForm'
 import { IconBadge } from '~/components/IconBadge'
 import { titleFormSchema } from '~/components/TitleForm'
 import { db } from '~/lib/db.server'
-import { mux } from '~/lib/mux.server'
-import { getVideoUrl, supabaseUploadHandler } from '~/lib/supabase.server'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)
@@ -65,20 +61,35 @@ export async function loader(args: LoaderFunctionArgs) {
       id: chapterId,
       courseId: ownCourse.id,
     },
-    include: {
-      muxData: true,
-    },
   })
 
   if (!chapter) {
     return redirect('/')
   }
 
-  return json({ chapter })
+  const unsignedVideoUrl = chapter.videoUrl
+  let signedVideoUrl = ''
+
+  if (unsignedVideoUrl) {
+    const parsedUrl = new URL(unsignedVideoUrl)
+
+    const pathSegments = parsedUrl.pathname.split('/') // Example: ['', 'embed', '228530', 'cbf30637-b0de-4f8f-9e43-2199a5c5e967']
+    const videoId = pathSegments[3]
+    const expires = Math.floor(new Date().valueOf() / 1000) + 60 * 60 // 1 hour
+    const data = `${process.env.BUNNY_TOKEN}${videoId}${expires}`
+    const hash = crypto.createHash('sha256')
+    const token = hash.update(data).digest('hex')
+
+    parsedUrl.searchParams.set('token', token)
+    parsedUrl.searchParams.set('expires', expires.toString())
+    signedVideoUrl = parsedUrl.toString()
+  }
+
+  return json({ chapter, signedVideoUrl })
 }
 
 export default function ChapterPage() {
-  const { chapter } = useLoaderData<typeof loader>()
+  const { chapter, signedVideoUrl } = useLoaderData<typeof loader>()
   const { courseId } = useParams<{ courseId: string }>()
 
   const requiredFields = [chapter.title, chapter.description, chapter.videoUrl]
@@ -117,6 +128,7 @@ export default function ChapterPage() {
                   Complete all fields {completionText}
                 </span>
               </div>
+
               <ChapterActions
                 disabled={!isComplete}
                 courseId={courseId!}
@@ -150,9 +162,10 @@ export default function ChapterPage() {
               <IconBadge icon={VideoIcon} size="sm" />
               <h2 className="text-xl">Add a video</h2>
             </div>
-            <ChapterVideoForm
-              playbackId={chapter.muxData?.playbackId}
-              videoUrl={chapter.videoUrl}
+
+            <BunnyChapterVideoForm
+              chapterId={chapter.id}
+              videoUrl={signedVideoUrl}
             />
           </div>
         </div>
@@ -168,140 +181,96 @@ export async function action(args: ActionFunctionArgs) {
     return redirect('/sign-in?redirect_url=' + args.request.url)
   }
 
-  if (args.request.method === 'DELETE') {
-    const { courseId, chapterId } = args.params
+  const { courseId, chapterId } = args.params
 
-    const ownCourse = await db.course.findUnique({
+  if (!courseId || !chapterId) {
+    return jsonWithError(
+      { error: 'Missing course or chapter id' },
+      { message: 'Missing course or chapter id' },
+      { status: 400 },
+    )
+  }
+
+  const ownCourse = await db.course.findUnique({
+    where: {
+      id: courseId,
+      userId,
+    },
+  })
+
+  if (!ownCourse) {
+    return jsonWithError(
+      { error: 'Unauthorized' },
+      { message: 'Unauthorized' },
+      { status: 401 },
+    )
+  }
+
+  if (args.request.method === 'DELETE') {
+    return deleteChapter(args, userId)
+  }
+
+  if (args.request.method === 'POST') {
+    return updateChapter(args)
+  }
+
+  return jsonWithError(
+    { error: 'Method not allowed' },
+    { message: 'Method not allowed' },
+    { status: 405 },
+  )
+}
+
+async function deleteChapter(args: ActionFunctionArgs, userId: string) {
+  const { courseId, chapterId } = args.params
+
+  const chapter = await db.chapter.findUnique({
+    where: {
+      id: chapterId,
+      courseId,
+    },
+  })
+
+  if (!chapter) {
+    return jsonWithError(
+      { error: 'Chapter not found' },
+      { message: 'Chapter not found' },
+      { status: 404 },
+    )
+  }
+
+  await db.chapter.delete({
+    where: {
+      id: chapterId,
+      courseId,
+    },
+  })
+
+  const publishedChaptersInCourse = await db.chapter.findMany({
+    where: {
+      courseId,
+      isPublished: true,
+    },
+  })
+
+  if (publishedChaptersInCourse.length === 0) {
+    await db.course.update({
       where: {
         id: courseId,
         userId,
       },
-    })
-
-    if (!ownCourse) {
-      return jsonWithError(
-        { error: 'Unauthorized' },
-        { message: 'Unauthorized' },
-        { status: 401 },
-      )
-    }
-
-    const chapter = await db.chapter.findUnique({
-      where: {
-        id: chapterId,
-        courseId,
+      data: {
+        isPublished: false,
       },
-    })
-
-    if (!chapter) {
-      return jsonWithError(
-        { error: 'Chapter not found' },
-        { message: 'Chapter not found' },
-        { status: 404 },
-      )
-    }
-
-    if (chapter.videoUrl) {
-      const existingMuxData = await db.muxData.findUnique({
-        where: {
-          chapterId,
-        },
-      })
-
-      if (existingMuxData) {
-        await mux.video.assets.delete(existingMuxData.assetId)
-        await db.muxData.delete({
-          where: {
-            id: existingMuxData.id,
-          },
-        })
-      }
-    }
-
-    await db.chapter.delete({
-      where: {
-        id: chapterId,
-        courseId,
-      },
-    })
-
-    const publishedChaptersInCourse = await db.chapter.findMany({
-      where: {
-        courseId,
-        isPublished: true,
-      },
-    })
-
-    if (publishedChaptersInCourse.length === 0) {
-      await db.course.update({
-        where: {
-          id: courseId,
-          userId,
-        },
-        data: {
-          isPublished: false,
-        },
-      })
-    }
-
-    return redirectWithSuccess(`/teacher/courses/${args.params.courseId}`, {
-      message: 'Chapter deleted successfully',
     })
   }
 
-  if (
-    args.request.headers.get('Content-Type')?.includes('multipart/form-data')
-  ) {
-    const formData = await parseMultipartFormData(
-      args.request,
-      supabaseUploadHandler(args.params.chapterId!),
-    )
-    console.log('videoUrl', formData.get('video'))
+  return redirectWithSuccess(`/teacher/courses/${args.params.courseId}`, {
+    message: 'Chapter deleted successfully',
+  })
+}
 
-    if (formData.get('video')) {
-      await db.chapter.update({
-        where: {
-          id: args.params.chapterId,
-        },
-        data: {
-          videoUrl: formData.get('video') as string,
-        },
-      })
-
-      const existingMuxData = await db.muxData.findFirst({
-        where: {
-          chapterId: args.params.chapterId,
-        },
-      })
-
-      if (existingMuxData) {
-        await mux.video.assets.delete(existingMuxData.assetId)
-        await db.muxData.delete({
-          where: {
-            id: existingMuxData.id,
-          },
-        })
-      }
-
-      const asset = await mux.video.assets.create({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        input: formData.get('video') as any,
-        playback_policy: ['public'],
-        test: false,
-      })
-
-      await db.muxData.create({
-        data: {
-          chapterId: args.params.chapterId!,
-          assetId: asset.id,
-          playbackId: asset.playback_ids?.[0]?.id,
-        },
-      })
-
-      return jsonWithSuccess({ ok: true }, 'Chapter updated successfully! 🎉')
-    }
-  }
-
+async function updateChapter(args: ActionFunctionArgs) {
   const formData = await args.request.formData()
 
   let submission
@@ -323,54 +292,6 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   if (submission?.status === 'success') {
-    const submissionValue = submission.value as { videoUrl: string }
-    const videoName = submissionValue.videoUrl
-
-    if (videoName) {
-      const videoUrl = getVideoUrl(videoName)
-
-      await db.chapter.update({
-        where: {
-          id: args.params.chapterId,
-        },
-        data: {
-          videoUrl: videoUrl,
-        },
-      })
-
-      const existingMuxData = await db.muxData.findFirst({
-        where: {
-          chapterId: args.params.chapterId,
-        },
-      })
-
-      if (existingMuxData) {
-        await mux.video.assets.delete(existingMuxData.assetId)
-        await db.muxData.delete({
-          where: {
-            id: existingMuxData.id,
-          },
-        })
-      }
-
-      const asset = await mux.video.assets.create({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        input: videoUrl as any,
-        playback_policy: ['public'],
-        test: false,
-      })
-
-      await db.muxData.create({
-        data: {
-          chapterId: args.params.chapterId!,
-          assetId: asset.id,
-          playbackId: asset.playback_ids?.[0]?.id,
-        },
-      })
-
-      return jsonWithSuccess({ ok: true }, 'Chapter updated successfully! 🎉')
-    }
-
     await db.chapter.update({
       where: {
         id: args.params.chapterId,

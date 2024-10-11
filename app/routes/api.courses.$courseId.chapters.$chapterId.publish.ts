@@ -51,20 +51,6 @@ export async function action(args: ActionFunctionArgs) {
       )
     }
 
-    const muxData = await db.muxData.findUnique({
-      where: {
-        chapterId: chapterId,
-      },
-    })
-
-    if (!muxData) {
-      return jsonWithError(
-        { error: 'Mux data not found' },
-        { message: 'Mux data not found' },
-        { status: 404 },
-      )
-    }
-
     const publishedChapter = await db.chapter.update({
       where: {
         id: chapterId,
