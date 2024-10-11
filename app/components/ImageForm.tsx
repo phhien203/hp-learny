@@ -1,9 +1,9 @@
 import { useFetcher } from '@remix-run/react'
 import { ImageIcon, PencilIcon, PlusCircleIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Button } from '~/components/ui/button'
-import { FileUpload } from './FileUpload'
 import { z } from 'zod'
+import { Button } from '~/components/ui/button'
+import { UppyFileUpload } from './UppyFileUpload'
 
 export const imageFormSchema = z.object({
   imageUrl: z.string({ required_error: 'Image is required' }).min(1, {
@@ -72,12 +72,11 @@ export function ImageForm({ initialData }: ImageFormProps) {
 
       {isEditing && (
         <div>
-          <FileUpload
-            endpoint="courseImage"
-            onChange={(imageUrl) => {
-              if (imageUrl) {
+          <UppyFileUpload
+            onChange={({ fileUrl }) => {
+              if (fileUrl) {
                 fetcher.submit(
-                  { imageUrl, intent: 'updateImage' },
+                  { imageUrl: fileUrl, intent: 'updateImage' },
                   { method: 'post' },
                 )
               }

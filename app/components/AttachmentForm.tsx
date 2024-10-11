@@ -3,7 +3,7 @@ import { FileIcon, Loader2, PlusCircleIcon, TrashIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { Button } from '~/components/ui/button'
-import { FileUpload } from './FileUpload'
+import { UppyFileUpload } from './UppyFileUpload'
 
 export const attachmentFormSchema = z.object({
   url: z.string().min(1),
@@ -78,7 +78,9 @@ export function AttachmentForm({ initialData, courseId }: AttachmentFormProps) {
                 >
                   <FileIcon className="mr-2 size-4 flex-shrink-0" />
                   <p className="line-clamp-1 text-sm" title={attachment.name}>
-                    {attachment.name}
+                    <a href={attachment.url} target="_blank" rel="noreferrer">
+                      {attachment.name}
+                    </a>
                   </p>
 
                   {deletingId === attachment.id && (
@@ -111,14 +113,13 @@ export function AttachmentForm({ initialData, courseId }: AttachmentFormProps) {
 
       {isEditing && (
         <div>
-          <FileUpload
-            endpoint="courseAttachment"
-            onChange={(attachment) => {
-              if (attachment) {
+          <UppyFileUpload
+            onChange={({ fileUrl, fileName }) => {
+              if (fileUrl) {
                 fetcher.submit(
-                  { url: attachment.url, name: attachment.name },
+                  { url: fileUrl, name: fileName },
                   {
-                    method: 'post',
+                    method: 'POST',
                     action: `/api/courses/${courseId}/attachments`,
                   },
                 )

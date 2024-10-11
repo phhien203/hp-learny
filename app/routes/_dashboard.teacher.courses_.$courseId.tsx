@@ -13,10 +13,16 @@ import {
   LayoutDashboard,
   ListChecksIcon,
 } from 'lucide-react'
-import { jsonWithError, jsonWithSuccess } from 'remix-toast'
+import {
+  jsonWithError,
+  jsonWithSuccess,
+  redirectWithSuccess,
+} from 'remix-toast'
 import { AttachmentForm } from '~/components/AttachmentForm'
+import { Banner } from '~/components/Banner'
 import { CategoryForm, categoryFormSchema } from '~/components/CategoryForm'
 import { ChaptersForm } from '~/components/ChaptersForm'
+import { CourseAction } from '~/components/CourseActions'
 import {
   DescriptionForm,
   descriptionFormSchema,
@@ -82,70 +88,75 @@ export default function TeacherCoursePage() {
 
   const completionText = `(${completedFields}/${totalFields})`
 
+  const isComplete = requiredFields.every(Boolean)
+
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-y-2">
-          <h1 className="text-2xl font-medium">Course setup</h1>
-
-          <span className="text-sm text-slate-700">
-            Complete all fields {completionText}
-          </span>
-        </div>
-      </div>
-
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <div className="flex items-center gap-x-2">
-            <IconBadge icon={LayoutDashboard} size="sm" />
-            <h2 className="text-xl">Customize your course</h2>
+    <>
+      {!course.isPublished ? (
+        <Banner
+          label="This course is unpublished. It will not be visible in the course list."
+          variant="warning"
+        />
+      ) : (
+        <div className="h-[54px]" />
+      )}
+      <div className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-y-2">
+            <h1 className="text-2xl font-medium">Course setup</h1>
+            <span className="text-sm text-slate-700">
+              Complete all fields {completionText}
+            </span>
           </div>
-
-          <TitleForm initialData={course.title} />
-
-          <DescriptionForm initialData={course.description} />
-
-          <ImageForm initialData={course} />
-
-          <CategoryForm
-            initialData={course.categoryId}
-            options={categories.map((category) => ({
-              value: category.id,
-              label: category.name,
-            }))}
+          <CourseAction
+            disabled={!isComplete}
+            courseId={course.id}
+            isPublished={course.isPublished}
           />
         </div>
-
-        <div className="space-y-6">
+        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
             <div className="flex items-center gap-x-2">
-              <IconBadge icon={ListChecksIcon} size="sm" />
-              <h2 className="text-xl">Course chapters</h2>
+              <IconBadge icon={LayoutDashboard} size="sm" />
+              <h2 className="text-xl">Customize your course</h2>
             </div>
-
-            <ChaptersForm initialData={course} courseId={course.id} />
+            <TitleForm initialData={course.title} />
+            <DescriptionForm initialData={course.description} />
+            <ImageForm initialData={course} />
+            <CategoryForm
+              initialData={course.categoryId}
+              options={categories.map((category) => ({
+                value: category.id,
+                label: category.name,
+              }))}
+            />
           </div>
-
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={CircleDollarSignIcon} size="sm" />
-              <h2 className="text-xl">Sell your course</h2>
+          <div className="space-y-6">
+            <div>
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={ListChecksIcon} size="sm" />
+                <h2 className="text-xl">Course chapters</h2>
+              </div>
+              <ChaptersForm initialData={course} courseId={course.id} />
             </div>
-
-            <PriceForm initialData={course.price} />
-          </div>
-
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={FileIcon} size="sm" />
-              <h2 className="text-xl">Attachments</h2>
+            <div>
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={CircleDollarSignIcon} size="sm" />
+                <h2 className="text-xl">Sell your course</h2>
+              </div>
+              <PriceForm initialData={course.price} />
             </div>
-
-            <AttachmentForm initialData={course} courseId={course.id} />
+            <div>
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={FileIcon} size="sm" />
+                <h2 className="text-xl">Attachments</h2>
+              </div>
+              <AttachmentForm initialData={course} courseId={course.id} />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -156,38 +167,79 @@ export async function action(args: ActionFunctionArgs) {
     return redirect('/sign-in?redirect_url=' + args.request.url)
   }
 
-  // TODO: check if the user is the owner of the course
+  const { courseId } = args.params
 
-  const formData = await args.request.formData()
-
-  let submission
-
-  if (formData.get('intent') === 'updateTitle') {
-    submission = parseWithZod(formData, { schema: titleFormSchema })
-  } else if (formData.get('intent') === 'updateDescription') {
-    submission = parseWithZod(formData, { schema: descriptionFormSchema })
-  } else if (formData.get('intent') === 'updateImage') {
-    submission = parseWithZod(formData, { schema: imageFormSchema })
-  } else if (formData.get('intent') === 'updateCategory') {
-    submission = parseWithZod(formData, { schema: categoryFormSchema })
-  } else if (formData.get('intent') === 'updatePrice') {
-    submission = parseWithZod(formData, { schema: priceFormSchema })
+  if (!courseId) {
+    return jsonWithError(
+      { error: 'Course ID is required' },
+      { message: 'Course ID is required' },
+      { status: 400 },
+    )
   }
 
-  if (submission?.status === 'success') {
-    await db.course.update({
-      where: {
-        id: args.params.courseId,
-        userId,
-      },
-      data: submission.value,
+  const ownCourse = await db.course.findUnique({
+    where: { id: courseId, userId },
+  })
+
+  if (!ownCourse) {
+    return jsonWithError(
+      { error: 'Unauthorized' },
+      { message: 'Unauthorized' },
+      { status: 401 },
+    )
+  }
+
+  if (args.request.method === 'DELETE') {
+    await db.course.delete({
+      where: { id: courseId, userId },
     })
 
-    return jsonWithSuccess({ ok: true }, 'Course updated successfully! 🎉')
+    return redirectWithSuccess('/teacher/courses', {
+      message: 'Course deleted successfully! 🎉',
+    })
+  }
+
+  if (args.request.method === 'POST') {
+    const formData = await args.request.formData()
+
+    let submission
+
+    if (formData.get('intent') === 'updateTitle') {
+      submission = parseWithZod(formData, { schema: titleFormSchema })
+    } else if (formData.get('intent') === 'updateDescription') {
+      submission = parseWithZod(formData, { schema: descriptionFormSchema })
+    } else if (formData.get('intent') === 'updateImage') {
+      submission = parseWithZod(formData, { schema: imageFormSchema })
+    } else if (formData.get('intent') === 'updateCategory') {
+      submission = parseWithZod(formData, { schema: categoryFormSchema })
+    } else if (formData.get('intent') === 'updatePrice') {
+      submission = parseWithZod(formData, { schema: priceFormSchema })
+    }
+
+    if (submission?.status === 'success') {
+      await db.course.update({
+        where: {
+          id: args.params.courseId,
+          userId,
+        },
+        data: submission.value,
+      })
+
+      return jsonWithSuccess(
+        { ok: true },
+        { message: 'Course updated successfully! 🎉' },
+      )
+    }
+
+    return jsonWithError(
+      { ok: false },
+      { message: 'Oops! Something went wrong. Please try again later.' },
+    )
   }
 
   return jsonWithError(
     { ok: false },
-    'Oops! Something went wrong. Please try again later.',
+    { message: 'Invalid request method' },
+    { status: 405 },
   )
 }
