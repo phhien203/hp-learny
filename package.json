@@ -61,6 +61,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.5.9",
     "@remix-run/dev": "^2.12.1",
     "@types/quill": "^2.0.14",
     "@types/react": "^18.2.20",
