@@ -4,7 +4,7 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
-  redirect
+  redirect,
 } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
 import crypto from 'crypto'
