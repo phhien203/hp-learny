@@ -87,7 +87,7 @@ export default function CourseDetailsLayout() {
           purchase={purchase as Purchase | null}
         />
       </div>
-      <main className="h-full pt-[80px] md:pl-80">
+      <main className="h-full pt-[69px] md:pl-80">
         <Outlet />
       </main>
     </div>
