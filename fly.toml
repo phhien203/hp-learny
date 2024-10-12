@@ -30,5 +30,5 @@ primary_region = 'sin'
   path = "/"
   protocol = "http"
   timeout = 2000
-  tls_skip_verify = false
+  tls_skip_verify = true
   [services.http_checks.headers]
