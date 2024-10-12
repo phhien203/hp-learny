@@ -7,7 +7,6 @@ import {
   redirect,
 } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
-import crypto from 'crypto'
 import {
   ArrowLeftIcon,
   EyeIcon,
@@ -34,6 +33,7 @@ import { ChapterTitleForm } from '~/components/ChapterTitleForm'
 import { chapterVideoFormSchema } from '~/components/ChapterVideoForm'
 import { IconBadge } from '~/components/IconBadge'
 import { titleFormSchema } from '~/components/TitleForm'
+import { signVideoUrl } from '~/lib/bunny.server'
 import { db } from '~/lib/db.server'
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -71,18 +71,7 @@ export async function loader(args: LoaderFunctionArgs) {
   let signedVideoUrl = ''
 
   if (unsignedVideoUrl) {
-    const parsedUrl = new URL(unsignedVideoUrl)
-
-    const pathSegments = parsedUrl.pathname.split('/') // Example: ['', 'embed', '228530', 'cbf30637-b0de-4f8f-9e43-2199a5c5e967']
-    const videoId = pathSegments[3]
-    const expires = Math.floor(new Date().valueOf() / 1000) + 60 * 60 // 1 hour
-    const data = `${process.env.BUNNY_TOKEN}${videoId}${expires}`
-    const hash = crypto.createHash('sha256')
-    const token = hash.update(data).digest('hex')
-
-    parsedUrl.searchParams.set('token', token)
-    parsedUrl.searchParams.set('expires', expires.toString())
-    signedVideoUrl = parsedUrl.toString()
+    signedVideoUrl = signVideoUrl(unsignedVideoUrl)
   }
 
   return json({ chapter, signedVideoUrl })

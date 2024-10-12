@@ -8,6 +8,7 @@ import CoursesList, {
 import { SearchInput } from '~/components/SearchInput'
 import { db } from '~/lib/db.server'
 import { getCourses } from '~/lib/get-courses.server'
+
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)
 

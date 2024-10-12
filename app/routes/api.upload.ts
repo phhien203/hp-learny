@@ -15,21 +15,13 @@ export async function action(args: ActionFunctionArgs) {
     return json({ error: 'No file uploaded' }, { status: 400 })
   }
 
-  const REGION = 'sg' // e.g., 'ny' for New York
-  const STORAGE_ZONE_NAME = 'pet-lms'
-  const ACCESS_KEY = process.env.BUNNY_STORAGE_API_KEY
-  const FILENAME = file.name
-
-  const base_url = REGION
-    ? `${REGION}.storage.bunnycdn.com`
-    : 'storage.bunnycdn.com'
-  const url = `https://${base_url}/${STORAGE_ZONE_NAME}/${FILENAME}`
-
+  const fileName = file.name
+  const accessKey = process.env.BUNNY_STORAGE_API_KEY
+  const url = `${process.env.BUNNY_FILE_UPLOAD_URL}/${fileName}`
   const headers = {
-    AccessKey: ACCESS_KEY,
+    AccessKey: accessKey,
     'Content-Type': 'application/octet-stream',
   }
-
   const fileStream = file.stream()
 
   const response = await fetch(url, {
@@ -43,8 +35,8 @@ export async function action(args: ActionFunctionArgs) {
     return json(
       {
         success: true,
-        fileName: file.name,
-        fileUrl: new URL(`https://pet-lms.b-cdn.net/${file.name}`).toString(),
+        fileName: fileName,
+        fileUrl: new URL(`${process.env.BUNNY_CDN_URL}/${fileName}`).toString(),
       },
       { status: 201 },
     )

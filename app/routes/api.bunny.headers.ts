@@ -1,40 +1,17 @@
 import { ActionFunctionArgs, json } from '@remix-run/node'
 import crypto from 'crypto'
+import { createBunnyVideo } from '~/lib/bunny.server'
 
 export async function action(args: ActionFunctionArgs) {
   try {
     const formData = await args.request.formData()
-    const title = formData.get('title')
+    const title = formData.get('title') as string
 
     if (!title) {
       throw new Error('Title is required')
     }
 
-    const bunnyLibraryId = process.env.BUNNY_LIBRARY_ID
-    const bunnyApiKey = process.env.BUNNY_API_KEY
-
-    if (!bunnyLibraryId || !bunnyApiKey) {
-      console.error('Bunny environment variables are not set')
-      throw new Error('Bunny environment variables are not set')
-    }
-
-    const url = `https://video.bunnycdn.com/library/${bunnyLibraryId}/videos`
-    const options = {
-      method: 'POST',
-      headers: {
-        accept: 'application/json',
-        'content-type': 'application/json',
-        AccessKey: `${bunnyApiKey}`,
-      },
-      body: JSON.stringify({
-        title: title,
-      }),
-    }
-
-    const bunnyResponse = await fetch(url, options)
-    const bunnyData = await bunnyResponse.json()
-
-    const videoId: string = bunnyData.guid
+    const videoId = await createBunnyVideo(title)
 
     const now = Math.floor(new Date().valueOf() / 1000)
     const expiration = 3600 // 1 hour

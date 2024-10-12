@@ -16,7 +16,9 @@ export async function loader(args: LoaderFunctionArgs) {
   }
 
   const course = await db.course.findUnique({
-    where: { id: courseId },
+    where: {
+      id: courseId,
+    },
     include: {
       chapters: {
         where: {

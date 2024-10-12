@@ -1,8 +1,8 @@
 import { Attachment, Chapter } from '@prisma/client'
+import { signVideoUrl } from './bunny.server'
 import { db } from './db.server'
-import crypto from 'crypto'
 
-export interface GetChapterParams {
+export interface GetChapterArgs {
   userId: string
   courseId: string
   chapterId: string
@@ -12,7 +12,7 @@ export async function getChapter({
   userId,
   courseId,
   chapterId,
-}: GetChapterParams) {
+}: GetChapterArgs) {
   try {
     const purchase = await db.purchase.findUnique({
       where: {
@@ -83,18 +83,7 @@ export async function getChapter({
     let signedVideoUrl = ''
 
     if (unsignedVideoUrl) {
-      const parsedUrl = new URL(unsignedVideoUrl)
-
-      const pathSegments = parsedUrl.pathname.split('/') // Example: ['', 'embed', '228530', 'cbf30637-b0de-4f8f-9e43-2199a5c5e967']
-      const videoId = pathSegments[3]
-      const expires = Math.floor(new Date().valueOf() / 1000) + 60 * 60 // 1 hour
-      const data = `${process.env.BUNNY_TOKEN}${videoId}${expires}`
-      const hash = crypto.createHash('sha256')
-      const token = hash.update(data).digest('hex')
-
-      parsedUrl.searchParams.set('token', token)
-      parsedUrl.searchParams.set('expires', expires.toString())
-      signedVideoUrl = parsedUrl.toString()
+      signedVideoUrl = signVideoUrl(unsignedVideoUrl)
     }
 
     return {

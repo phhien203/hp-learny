@@ -61,7 +61,7 @@ export function BunnyChapterVideoForm({
           return modifiedFile
         },
       }).use(Tus, {
-        endpoint: 'https://video.bunnycdn.com/tusupload',
+        endpoint: process.env.BUNNY_TUS_ENDPOINT,
         headers: {
           ...requestVideoHeaders.data.headers,
         } as unknown as Record<string, string>,
@@ -73,7 +73,9 @@ export function BunnyChapterVideoForm({
         console.log('upload-success', file, response)
         fetcher.submit(
           {
-            videoUrl: `https://iframe.mediadelivery.net/embed/${requestVideoHeaders.data?.headers.LibraryId}/${requestVideoHeaders.data?.headers.VideoId}`,
+            videoUrl: `${process.env.BUNNY_EMBED_URL}/${
+              requestVideoHeaders.data?.headers.LibraryId
+            }/${requestVideoHeaders.data?.headers.VideoId}`,
             intent: 'updateChapterVideoUrl',
           },
           { method: 'post' },

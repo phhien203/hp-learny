@@ -18,7 +18,7 @@ interface UppyFileUploadProps {
 export function UppyFileUpload({ onChange }: UppyFileUploadProps) {
   const [uppy] = React.useState(() =>
     new Uppy({
-      debug: true,
+      debug: false,
       restrictions: {
         allowedFileTypes: ['image/*', 'application/pdf'],
       },
