@@ -4,12 +4,12 @@ import { useFetcher } from '@remix-run/react'
 import { PencilIcon } from 'lucide-react'
 // import quillCss from 'quill/dist/quill.snow.css'
 import { useEffect, useState } from 'react'
-import { ClientOnly } from 'remix-utils/client-only'
+// import { ClientOnly } from 'remix-utils/client-only'
 import { z } from 'zod'
 import { Button } from '~/components/ui/button'
 import { cn } from '~/lib/utils'
-import Quill from './Quill.client'
-import Preview from './Preview.client'
+// import Preview from './Preview.client'
+import { Textarea } from './ui/textarea'
 
 // export const links = () => [{ rel: 'stylesheet', href: quillCss }]
 
@@ -81,11 +81,12 @@ export function ChapterDescriptionForm({
           {!initialData && 'No description'}
 
           {initialData && (
-            <ClientOnly
-              fallback={<div style={{ width: 500, height: 300 }}></div>}
-            >
-              {() => <Preview defaultValue={initialData ?? ''} />}
-            </ClientOnly>
+            // <ClientOnly
+            //   fallback={<div style={{ width: 500, height: 300 }}></div>}
+            // >
+            //   {() => <Preview defaultValue={initialData ?? ''} />}
+            // </ClientOnly>
+            <div>{initialData}</div>
           )}
         </div>
       )}
@@ -97,7 +98,12 @@ export function ChapterDescriptionForm({
           {...getFormProps(form)}
         >
           <div>
-            <ClientOnly
+            <Textarea
+              name={fields.description.name}
+              defaultValue={initialData ?? ''}
+            />
+
+            {/* <ClientOnly
               fallback={<div style={{ width: 500, height: 300 }}></div>}
             >
               {() => (
@@ -106,7 +112,7 @@ export function ChapterDescriptionForm({
                   defaultValue={initialData ?? ''}
                 />
               )}
-            </ClientOnly>
+            </ClientOnly> */}
 
             <div className="mt-2 h-4 text-xs text-red-500">
               {fields.description.errors}

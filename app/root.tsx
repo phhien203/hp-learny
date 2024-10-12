@@ -18,7 +18,7 @@ import { useEffect } from 'react'
 import { toast as notify, Toaster } from 'react-hot-toast'
 import { getToast } from 'remix-toast'
 import './tailwind.css'
-import 'quill/dist/quill.snow.css'
+// import 'quill/dist/quill.snow.css'
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },

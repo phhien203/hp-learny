@@ -84,6 +84,9 @@
     "vite": "^5.1.0",
     "vite-tsconfig-paths": "^4.2.1"
   },
+  "prisma": {
+    "seed": "node scripts/seed.cjs"
+  },
   "engines": {
     "node": ">=20.0.0"
   }

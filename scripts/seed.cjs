@@ -6,6 +6,7 @@ async function seed() {
   try {
     await db.category.createMany({
       data: [
+        { name: 'Phát triển bản thân' },
         { name: 'Artificial Intelligence' },
         { name: 'Blockchain Development' },
         { name: 'Cloud Computing' },
