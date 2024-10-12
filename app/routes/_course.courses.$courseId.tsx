@@ -23,7 +23,6 @@ export async function loader(args: LoaderFunctionArgs) {
   const course = await db.course.findUnique({
     where: {
       id: courseId,
-      userId,
     },
     include: {
       chapters: {
