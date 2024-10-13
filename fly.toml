@@ -12,6 +12,9 @@ primary_region = 'sin'
   source = 'data'
   destination = '/data'
 
+[experimental]
+  enable_consul = true
+
 [http_service]
   internal_port = 8080
   force_https = true
