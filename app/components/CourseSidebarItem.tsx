@@ -50,7 +50,9 @@ export function CourseSidebarItem({
             isCompleted && 'text-emerald-700',
           )}
         />
-        {label}
+        <p className="truncate" title={label}>
+          {label}
+        </p>
       </div>
 
       <div
