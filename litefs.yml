@@ -11,4 +11,5 @@ lease:
 
   consul:
     url: '${FLY_CONSUL_URL}'
-    key: 'litefs/${FLY_APP_NAME}'
+    # ref https://fly.io/docs/litefs/disaster-recovery/#resolve-consul-key-error
+    key: 'litefs/${FLY_APP_NAME}-v2'
