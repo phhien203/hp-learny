@@ -67,7 +67,7 @@ ENV DATABASE_URL="file:///data/sqlite.db"
 ENV PORT="8080"
 ENV NODE_ENV="production"
 
-COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
-ADD litefs.yml /etc/litefs.yml
+# COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
+# ADD litefs.yml /etc/litefs.yml
 
 CMD [ "npm", "run", "start" ]
