@@ -43,7 +43,7 @@ FROM base
 
 # Install packages needed for deployment
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y openssl sqlite3 && \
+    apt-get install --no-install-recommends -y openssl sqlite3 fuse3 && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy built application
@@ -59,10 +59,14 @@ RUN echo "#!/bin/sh\nset -x\nsqlite3 \$DATABASE_URL" > /usr/local/bin/database-c
 # Entrypoint prepares the database.
 ENTRYPOINT [ "/app/docker-entrypoint.js" ]
 
+ENV LITEFS_DIR="/litefs"
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-ENV DATABASE_URL="file:///data/sqlite.db"
+ENV DATABASE_URL="file://$LITEFS_DIR/sqlite.db"
 ENV PORT="8080"
 ENV NODE_ENV="production"
 
-CMD [ "npm", "run", "start" ]
+COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
+ADD litefs.yml /etc/litefs.yml
+
+CMD [ "litefs", "mount", "--", "npm", "run", "start" ]
