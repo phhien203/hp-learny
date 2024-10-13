@@ -4,12 +4,19 @@ import { useLoaderData } from '@remix-run/react'
 import { columns } from '~/components/Columns'
 import { DataTable } from '~/components/DataTable'
 import { db } from '~/lib/db.server'
+import { isTeacher } from '~/lib/user-role.server'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)
 
   if (!userId) {
-    return redirect('/sign-in')
+    return redirect('/sign-in?redirect_url=' + args.request.url)
+  }
+
+  const teacherRole = await isTeacher(args)
+
+  if (!teacherRole) {
+    return redirect('/search')
   }
 
   const courses = await db.course.findMany({

@@ -33,11 +33,11 @@ export default function SearchPage() {
   return (
     <>
       <div className="px-6 pt-6 md:mb-0 md:mt-6 md:hidden">
-        <SearchInput />
+        {/* <SearchInput /> */}
       </div>
       <div className="p-6">
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        <Categories items={categories as any[]} />
+        {/* <Categories items={categories as any[]} /> */}
 
         <CoursesList
           items={courses as unknown as CourseWithProgressWithCategory[]}

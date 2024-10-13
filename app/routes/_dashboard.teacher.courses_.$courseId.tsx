@@ -32,12 +32,19 @@ import { ImageForm, imageFormSchema } from '~/components/ImageForm'
 import { PriceForm, priceFormSchema } from '~/components/PriceForm'
 import { TitleForm, titleFormSchema } from '~/components/TitleForm'
 import { db } from '~/lib/db.server'
+import { isTeacher } from '~/lib/user-role.server'
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { userId } = await getAuth(args)
 
   if (!userId) {
     return redirect('/sign-in?redirect_url=' + args.request.url)
+  }
+
+  const teacherRole = await isTeacher(args)
+
+  if (!teacherRole) {
+    return redirect('/search')
   }
 
   const course = await db.course.findUnique({

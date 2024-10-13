@@ -40,12 +40,19 @@ import {
   signVideoUrl,
 } from '~/lib/bunny.server'
 import { db } from '~/lib/db.server'
+import { isTeacher } from '~/lib/user-role.server'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)
 
   if (!userId) {
     return redirect('/')
+  }
+
+  const teacherRole = await isTeacher(args)
+
+  if (!teacherRole) {
+    return redirect('/search')
   }
 
   const { courseId, chapterId } = args.params

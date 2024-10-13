@@ -8,6 +8,7 @@ import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { db } from '~/lib/db.server'
+import { isTeacher } from '~/lib/user-role.server'
 
 const schema = z.object({
   title: z.string({
@@ -20,6 +21,12 @@ export const action = async (args: ActionFunctionArgs) => {
 
   if (!userId) {
     return redirect('/sign-in?redirect_url=' + args.request.url)
+  }
+
+  const teacherRole = await isTeacher(args)
+
+  if (!teacherRole) {
+    return redirect('/search')
   }
 
   const formData = await args.request.formData()

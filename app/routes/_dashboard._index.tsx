@@ -23,10 +23,12 @@ export const meta: MetaFunction = () => {
 
 export const loader: LoaderFunction = async (args: LoaderFunctionArgs) => {
   const { userId } = await getAuth(args)
+
   if (!userId) {
     return redirect('/sign-in')
   }
-  return {}
+
+  return redirect('/search')
 }
 
 export default function Index() {

@@ -1,11 +1,11 @@
 import { NavbarRoutes } from '~/components/NavbarRoutes'
 import { MobileSidebar } from './MobileSidebar'
 
-export function Navbar() {
+export function Navbar({ isTeacher }: { isTeacher: boolean }) {
   return (
     <div className="flex h-full items-center border-b bg-white p-4 shadow-sm">
       <MobileSidebar />
-      <NavbarRoutes />
+      <NavbarRoutes isTeacher={isTeacher} />
     </div>
   )
 }
