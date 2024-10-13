@@ -61,7 +61,7 @@ ENTRYPOINT [ "/app/docker-entrypoint.js" ]
 
 ENV LITEFS_DIR="/litefs"
 # Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
+# EXPOSE 3000
 ENV DATABASE_URL="file://$LITEFS_DIR/sqlite.db"
 ENV PORT="8080"
 ENV NODE_ENV="production"
