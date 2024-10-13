@@ -2,10 +2,10 @@ import { getAuth } from '@clerk/remix/ssr.server'
 import { Chapter, Course, Purchase, UserProgress } from '@prisma/client'
 import { json, LoaderFunctionArgs, redirect } from '@remix-run/node'
 import { Outlet, useLoaderData } from '@remix-run/react'
-import CourseNavbar from '~/components/CourseNavbar'
-import { CourseSidebar } from '~/components/CourseSidebar'
 import { db } from '~/lib/db.server'
 import { getProgress } from '~/lib/get-progress.server'
+import CourseNavbar from './_components/CourseNavbar'
+import { CourseSidebar } from './_components/CourseSidebar'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)

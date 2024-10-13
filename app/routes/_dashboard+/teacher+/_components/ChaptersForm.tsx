@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { Button } from '~/components/ui/button'
 import { cn } from '~/lib/utils'
 import { ChaptersList } from './ChaptersList'
-import { Input } from './ui/input'
+import { Input } from '../../../../components/ui/input'
 
 export const chaptersFormSchema = z.object({
   title: z.string({ required_error: 'Title is required' }).min(1, {

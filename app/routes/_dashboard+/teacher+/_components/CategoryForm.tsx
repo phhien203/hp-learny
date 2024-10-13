@@ -2,46 +2,41 @@ import { getFormProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { useFetcher } from '@remix-run/react'
 import { PencilIcon } from 'lucide-react'
-// import quillCss from 'quill/dist/quill.snow.css'
 import { useEffect, useState } from 'react'
-// import { ClientOnly } from 'remix-utils/client-only'
 import { z } from 'zod'
 import { Button } from '~/components/ui/button'
 import { cn } from '~/lib/utils'
-// import Preview from './Preview.client'
-import { Textarea } from './ui/textarea'
+import { Combobox } from '../../../../components/ui/combobox'
 
-// export const links = () => [{ rel: 'stylesheet', href: quillCss }]
-
-export const chapterDescriptionFormSchema = z.object({
-  description: z.string().min(1),
+export const categoryFormSchema = z.object({
+  categoryId: z.string({ required_error: 'Category is required' }).min(1, {
+    message: 'Category is required',
+  }),
 })
 
-interface ChapterDescriptionFormProps {
+interface CategoryFormProps {
   initialData?: string | null
+  options: { value: string; label: string }[]
 }
 
-export function ChapterDescriptionForm({
-  initialData,
-}: ChapterDescriptionFormProps) {
-  const [isMounted, setIsMounted] = useState(false)
+export function CategoryForm({ initialData, options }: CategoryFormProps) {
   const [form, fields] = useForm({
     defaultValue: {
-      description: initialData ?? '',
+      categoryId: initialData ?? '',
     },
-    constraint: getZodConstraint(chapterDescriptionFormSchema),
+    constraint: getZodConstraint(categoryFormSchema),
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onBlur',
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: chapterDescriptionFormSchema })
+      return parseWithZod(formData, { schema: categoryFormSchema })
     },
   })
   const fetcher = useFetcher()
   const [isEditing, setIsEditing] = useState(false)
 
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
+  const selectedCategory = options.find(
+    (option) => option.value === initialData,
+  )
 
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {
@@ -49,12 +44,10 @@ export function ChapterDescriptionForm({
     }
   }, [fetcher.state, fetcher.data])
 
-  if (!isMounted) return null
-
   return (
     <div className="mt-6 rounded-md border bg-slate-100 p-4">
       <div className="flex items-center justify-between font-medium">
-        Chapter description
+        Course category
         <Button
           size="sm"
           variant="ghost"
@@ -72,23 +65,14 @@ export function ChapterDescriptionForm({
       </div>
 
       {!isEditing && (
-        <div
+        <p
           className={cn(
             'mt-2 text-sm',
-            !initialData && 'italic text-slate-500',
+            !selectedCategory && 'italic text-slate-500',
           )}
         >
-          {!initialData && 'No description'}
-
-          {initialData && (
-            // <ClientOnly
-            //   fallback={<div style={{ width: 500, height: 300 }}></div>}
-            // >
-            //   {() => <Preview defaultValue={initialData ?? ''} />}
-            // </ClientOnly>
-            <div>{initialData}</div>
-          )}
-        </div>
+          {selectedCategory?.label ?? 'No category'}
+        </p>
       )}
 
       {isEditing ? (
@@ -98,39 +82,49 @@ export function ChapterDescriptionForm({
           {...getFormProps(form)}
         >
           <div>
-            <Textarea
-              name={fields.description.name}
+            {/* <select
+              {...getSelectProps(fields.categoryId)}
               defaultValue={initialData ?? ''}
+            >
+              {options.map((option) => (
+                <option
+                  key={option.value}
+                  value={option.value}
+                  selected={option.value === initialData}
+                >
+                  {option.label}
+                </option>
+              ))}
+            </select> */}
+
+            <Combobox
+              options={options}
+              value={initialData ?? ''}
+              onChange={(value) => {
+                fetcher.submit(
+                  { categoryId: value, intent: 'updateCategory' },
+                  { method: 'post' },
+                )
+              }}
             />
 
-            {/* <ClientOnly
-              fallback={<div style={{ width: 500, height: 300 }}></div>}
-            >
-              {() => (
-                <Quill
-                  name={fields.description.name}
-                  defaultValue={initialData ?? ''}
-                />
-              )}
-            </ClientOnly> */}
-
             <div className="mt-2 h-4 text-xs text-red-500">
-              {fields.description.errors}
+              {fields.categoryId.errors}
             </div>
           </div>
 
-          <div className="flex items-center gap-x-2">
+          {/* <div className="flex items-center gap-x-2">
             <Button
               type="submit"
               name="intent"
-              value="updateChapterDescription"
+              value="updateCategory"
               disabled={
                 fetcher.state === 'submitting' || fetcher.state === 'loading'
               }
             >
               Save
             </Button>
-          </div>
+          </div> */}
         </fetcher.Form>
       ) : null}
     </div>

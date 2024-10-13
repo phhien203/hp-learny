@@ -2,34 +2,46 @@ import { getFormProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { useFetcher } from '@remix-run/react'
 import { PencilIcon } from 'lucide-react'
+// import quillCss from 'quill/dist/quill.snow.css'
 import { useEffect, useState } from 'react'
+// import { ClientOnly } from 'remix-utils/client-only'
 import { z } from 'zod'
 import { Button } from '~/components/ui/button'
 import { cn } from '~/lib/utils'
-import { Checkbox } from './ui/checkbox'
+// import Preview from './Preview.client'
+import { Textarea } from '../../../../components/ui/textarea'
 
-export const chapterAccessFormSchema = z.object({
-  isFree: z.coerce.boolean().default(false),
+// export const links = () => [{ rel: 'stylesheet', href: quillCss }]
+
+export const chapterDescriptionFormSchema = z.object({
+  description: z.string().min(1),
 })
 
-interface ChapterAccessFormProps {
-  initialData: boolean
+interface ChapterDescriptionFormProps {
+  initialData?: string | null
 }
 
-export function ChapterAccessForm({ initialData }: ChapterAccessFormProps) {
+export function ChapterDescriptionForm({
+  initialData,
+}: ChapterDescriptionFormProps) {
+  const [isMounted, setIsMounted] = useState(false)
   const [form, fields] = useForm({
     defaultValue: {
-      isFree: !!initialData,
+      description: initialData ?? '',
     },
-    constraint: getZodConstraint(chapterAccessFormSchema),
+    constraint: getZodConstraint(chapterDescriptionFormSchema),
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onBlur',
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: chapterAccessFormSchema })
+      return parseWithZod(formData, { schema: chapterDescriptionFormSchema })
     },
   })
   const fetcher = useFetcher()
   const [isEditing, setIsEditing] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {
@@ -37,10 +49,12 @@ export function ChapterAccessForm({ initialData }: ChapterAccessFormProps) {
     }
   }, [fetcher.state, fetcher.data])
 
+  if (!isMounted) return null
+
   return (
     <div className="mt-6 rounded-md border bg-slate-100 p-4">
       <div className="flex items-center justify-between font-medium">
-        Chapter access
+        Chapter description
         <Button
           size="sm"
           variant="ghost"
@@ -58,18 +72,23 @@ export function ChapterAccessForm({ initialData }: ChapterAccessFormProps) {
       </div>
 
       {!isEditing && (
-        <p
+        <div
           className={cn(
             'mt-2 text-sm',
             !initialData && 'italic text-slate-500',
           )}
         >
-          {initialData ? (
-            <>This chapter is free for preview</>
-          ) : (
-            <>This chapter is private</>
+          {!initialData && 'No description'}
+
+          {initialData && (
+            // <ClientOnly
+            //   fallback={<div style={{ width: 500, height: 300 }}></div>}
+            // >
+            //   {() => <Preview defaultValue={initialData ?? ''} />}
+            // </ClientOnly>
+            <div>{initialData}</div>
           )}
-        </p>
+        </div>
       )}
 
       {isEditing ? (
@@ -79,30 +98,32 @@ export function ChapterAccessForm({ initialData }: ChapterAccessFormProps) {
           {...getFormProps(form)}
         >
           <div>
-            {/* <input
-              {...getInputProps(fields.isFree, { type: 'checkbox' })}
-              defaultChecked={Boolean(initialData)}
-            /> */}
-
-            <Checkbox
-              id={fields.isFree.id}
-              name={fields.isFree.name}
-              defaultChecked={Boolean(initialData)}
+            <Textarea
+              name={fields.description.name}
+              defaultValue={initialData ?? ''}
             />
 
-            <label
-              htmlFor={fields.isFree.id}
-              className="ml-2 text-sm font-medium leading-none"
+            {/* <ClientOnly
+              fallback={<div style={{ width: 500, height: 300 }}></div>}
             >
-              Check this box if you want to make this chapter free for preview
-            </label>
+              {() => (
+                <Quill
+                  name={fields.description.name}
+                  defaultValue={initialData ?? ''}
+                />
+              )}
+            </ClientOnly> */}
+
+            <div className="mt-2 h-4 text-xs text-red-500">
+              {fields.description.errors}
+            </div>
           </div>
 
           <div className="flex items-center gap-x-2">
             <Button
               type="submit"
               name="intent"
-              value="updateChapterAccess"
+              value="updateChapterDescription"
               disabled={
                 fetcher.state === 'submitting' || fetcher.state === 'loading'
               }

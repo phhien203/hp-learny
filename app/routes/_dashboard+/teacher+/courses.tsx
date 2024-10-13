@@ -1,10 +1,10 @@
 import { getAuth } from '@clerk/remix/ssr.server'
 import { json, LoaderFunctionArgs, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { columns } from '~/components/Columns'
-import { DataTable } from '~/components/DataTable'
 import { db } from '~/lib/db.server'
 import { isTeacher } from '~/lib/user-role.server'
+import { columns } from './_components/Columns'
+import { DataTable } from './_components/DataTable'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)

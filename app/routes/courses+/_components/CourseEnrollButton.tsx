@@ -1,5 +1,5 @@
+import { Button } from '~/components/ui/button'
 import { formatPrice } from '~/lib/format'
-import { Button } from './ui/button'
 
 export function CourseEnrollButton({
   courseId,

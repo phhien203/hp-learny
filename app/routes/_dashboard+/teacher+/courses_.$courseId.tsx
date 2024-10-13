@@ -18,19 +18,19 @@ import {
   jsonWithSuccess,
   redirectWithSuccess,
 } from 'remix-toast'
-import { AttachmentForm } from '~/components/AttachmentForm'
+import { AttachmentForm } from '~/routes/_dashboard+/teacher+/_components/AttachmentForm'
 import { Banner } from '~/components/Banner'
-import { CategoryForm, categoryFormSchema } from '~/components/CategoryForm'
-import { ChaptersForm } from '~/components/ChaptersForm'
-import { CourseAction } from '~/components/CourseActions'
+import { CategoryForm, categoryFormSchema } from '~/routes/_dashboard+/teacher+/_components/CategoryForm'
+import { ChaptersForm } from '~/routes/_dashboard+/teacher+/_components/ChaptersForm'
+import { CourseAction } from '~/routes/_dashboard+/teacher+/_components/CourseActions'
 import {
   DescriptionForm,
   descriptionFormSchema,
-} from '~/components/DescriptionForm'
+} from '~/routes/_dashboard+/teacher+/_components/DescriptionForm'
 import { IconBadge } from '~/components/IconBadge'
-import { ImageForm, imageFormSchema } from '~/components/ImageForm'
-import { PriceForm, priceFormSchema } from '~/components/PriceForm'
-import { TitleForm, titleFormSchema } from '~/components/TitleForm'
+import { ImageForm, imageFormSchema } from '~/routes/_dashboard+/teacher+/_components/ImageForm'
+import { PriceForm, priceFormSchema } from '~/routes/_dashboard+/teacher+/_components/PriceForm'
+import { TitleForm, titleFormSchema } from '~/routes/_dashboard+/teacher+/_components/TitleForm'
 import { db } from '~/lib/db.server'
 import { isTeacher } from '~/lib/user-role.server'
 

@@ -1,5 +1,5 @@
-import { Course, Chapter, UserProgress } from '@prisma/client'
-import { NavbarRoutes } from './NavbarRoutes'
+import { Chapter, Course, UserProgress } from '@prisma/client'
+import { NavbarRoutes } from '~/components/NavbarRoutes'
 import { CourseMobileSidebar } from './CourseMobileSidebar'
 
 export default function CourseNavbar({
@@ -14,7 +14,7 @@ export default function CourseNavbar({
   return (
     <div className="flex items-center border-b bg-white p-4 shadow-sm">
       <CourseMobileSidebar course={course} progressCount={progressCount} />
-      <NavbarRoutes />
+      <NavbarRoutes isTeacher={false} />
     </div>
   )
 }

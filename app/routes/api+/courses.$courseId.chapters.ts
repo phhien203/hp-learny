@@ -2,7 +2,7 @@ import { getAuth } from '@clerk/remix/ssr.server'
 import { parseWithZod } from '@conform-to/zod'
 import { ActionFunctionArgs, json } from '@remix-run/node'
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
-import { chaptersFormSchema } from '~/components/ChaptersForm'
+import { chaptersFormSchema } from '~/routes/_dashboard+/teacher+/_components/ChaptersForm'
 import { db } from '~/lib/db.server'
 
 export async function action(args: ActionFunctionArgs) {

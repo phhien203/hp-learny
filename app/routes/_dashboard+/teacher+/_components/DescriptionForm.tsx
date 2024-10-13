@@ -5,28 +5,29 @@ import { PencilIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { Button } from '~/components/ui/button'
+import { Textarea } from '../../../../components/ui/textarea'
 import { cn } from '~/lib/utils'
-import { Input } from './ui/input'
-import { formatPrice } from '~/lib/format'
 
-export const priceFormSchema = z.object({
-  price: z.coerce.number(),
+export const descriptionFormSchema = z.object({
+  description: z.string({ required_error: 'Description is required' }).min(1, {
+    message: 'Description is required',
+  }),
 })
 
-interface PriceFormProps {
-  initialData?: number | null
+interface DescriptionFormProps {
+  initialData?: string | null
 }
 
-export function PriceForm({ initialData }: PriceFormProps) {
+export function DescriptionForm({ initialData }: DescriptionFormProps) {
   const [form, fields] = useForm({
     defaultValue: {
-      price: initialData || 0,
+      description: initialData ?? '',
     },
-    constraint: getZodConstraint(priceFormSchema),
+    constraint: getZodConstraint(descriptionFormSchema),
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onBlur',
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: priceFormSchema })
+      return parseWithZod(formData, { schema: descriptionFormSchema })
     },
   })
   const fetcher = useFetcher()
@@ -41,7 +42,7 @@ export function PriceForm({ initialData }: PriceFormProps) {
   return (
     <div className="mt-6 rounded-md border bg-slate-100 p-4">
       <div className="flex items-center justify-between font-medium">
-        Course price
+        Course description
         <Button
           size="sm"
           variant="ghost"
@@ -65,7 +66,7 @@ export function PriceForm({ initialData }: PriceFormProps) {
             !initialData && 'italic text-slate-500',
           )}
         >
-          {initialData ? formatPrice(initialData) : 'No price'}
+          {initialData ?? 'No description'}
         </p>
       )}
 
@@ -76,18 +77,17 @@ export function PriceForm({ initialData }: PriceFormProps) {
           {...getFormProps(form)}
         >
           <div>
-            <Input
-              step={0.01}
-              placeholder="e.g. 9.99"
-              {...getInputProps(fields.price, { type: 'number' })}
-              defaultValue={initialData || 0}
+            <Textarea
+              placeholder="e.g. This course is about..."
+              {...getInputProps(fields.description, { type: 'text' })}
+              defaultValue={initialData ?? ''}
               disabled={
                 fetcher.state === 'submitting' || fetcher.state === 'loading'
               }
             />
 
             <div className="mt-2 h-4 text-xs text-red-500">
-              {fields.price.errors}
+              {fields.description.errors}
             </div>
           </div>
 
@@ -95,7 +95,7 @@ export function PriceForm({ initialData }: PriceFormProps) {
             <Button
               type="submit"
               name="intent"
-              value="updatePrice"
+              value="updateDescription"
               disabled={
                 fetcher.state === 'submitting' || fetcher.state === 'loading'
               }

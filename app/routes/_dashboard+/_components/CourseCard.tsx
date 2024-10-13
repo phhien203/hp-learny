@@ -1,7 +1,7 @@
 import { Link } from '@remix-run/react'
 import { BookOpenIcon } from 'lucide-react'
+import { IconBadge } from '~/components/IconBadge'
 import { formatPrice } from '~/lib/format'
-import { IconBadge } from './IconBadge'
 
 interface CourseCardProps {
   id: string

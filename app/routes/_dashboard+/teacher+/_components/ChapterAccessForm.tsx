@@ -6,37 +6,30 @@ import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { Button } from '~/components/ui/button'
 import { cn } from '~/lib/utils'
-import { Combobox } from './ui/combobox'
+import { Checkbox } from '../../../../components/ui/checkbox'
 
-export const categoryFormSchema = z.object({
-  categoryId: z.string({ required_error: 'Category is required' }).min(1, {
-    message: 'Category is required',
-  }),
+export const chapterAccessFormSchema = z.object({
+  isFree: z.coerce.boolean().default(false),
 })
 
-interface CategoryFormProps {
-  initialData?: string | null
-  options: { value: string; label: string }[]
+interface ChapterAccessFormProps {
+  initialData: boolean
 }
 
-export function CategoryForm({ initialData, options }: CategoryFormProps) {
+export function ChapterAccessForm({ initialData }: ChapterAccessFormProps) {
   const [form, fields] = useForm({
     defaultValue: {
-      categoryId: initialData ?? '',
+      isFree: !!initialData,
     },
-    constraint: getZodConstraint(categoryFormSchema),
+    constraint: getZodConstraint(chapterAccessFormSchema),
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onBlur',
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: categoryFormSchema })
+      return parseWithZod(formData, { schema: chapterAccessFormSchema })
     },
   })
   const fetcher = useFetcher()
   const [isEditing, setIsEditing] = useState(false)
-
-  const selectedCategory = options.find(
-    (option) => option.value === initialData,
-  )
 
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {
@@ -47,7 +40,7 @@ export function CategoryForm({ initialData, options }: CategoryFormProps) {
   return (
     <div className="mt-6 rounded-md border bg-slate-100 p-4">
       <div className="flex items-center justify-between font-medium">
-        Course category
+        Chapter access
         <Button
           size="sm"
           variant="ghost"
@@ -68,10 +61,14 @@ export function CategoryForm({ initialData, options }: CategoryFormProps) {
         <p
           className={cn(
             'mt-2 text-sm',
-            !selectedCategory && 'italic text-slate-500',
+            !initialData && 'italic text-slate-500',
           )}
         >
-          {selectedCategory?.label ?? 'No category'}
+          {initialData ? (
+            <>This chapter is free for preview</>
+          ) : (
+            <>This chapter is private</>
+          )}
         </p>
       )}
 
@@ -82,49 +79,37 @@ export function CategoryForm({ initialData, options }: CategoryFormProps) {
           {...getFormProps(form)}
         >
           <div>
-            {/* <select
-              {...getSelectProps(fields.categoryId)}
-              defaultValue={initialData ?? ''}
-            >
-              {options.map((option) => (
-                <option
-                  key={option.value}
-                  value={option.value}
-                  selected={option.value === initialData}
-                >
-                  {option.label}
-                </option>
-              ))}
-            </select> */}
+            {/* <input
+              {...getInputProps(fields.isFree, { type: 'checkbox' })}
+              defaultChecked={Boolean(initialData)}
+            /> */}
 
-            <Combobox
-              options={options}
-              value={initialData ?? ''}
-              onChange={(value) => {
-                fetcher.submit(
-                  { categoryId: value, intent: 'updateCategory' },
-                  { method: 'post' },
-                )
-              }}
+            <Checkbox
+              id={fields.isFree.id}
+              name={fields.isFree.name}
+              defaultChecked={Boolean(initialData)}
             />
 
-            <div className="mt-2 h-4 text-xs text-red-500">
-              {fields.categoryId.errors}
-            </div>
+            <label
+              htmlFor={fields.isFree.id}
+              className="ml-2 text-sm font-medium leading-none"
+            >
+              Check this box if you want to make this chapter free for preview
+            </label>
           </div>
 
-          {/* <div className="flex items-center gap-x-2">
+          <div className="flex items-center gap-x-2">
             <Button
               type="submit"
               name="intent"
-              value="updateCategory"
+              value="updateChapterAccess"
               disabled={
                 fetcher.state === 'submitting' || fetcher.state === 'loading'
               }
             >
               Save
             </Button>
-          </div> */}
+          </div>
         </fetcher.Form>
       ) : null}
     </div>

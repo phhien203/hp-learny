@@ -1,8 +1,8 @@
 import { json, LoaderFunctionArgs } from '@remix-run/node'
 import { Outlet, useLoaderData } from '@remix-run/react'
-import { Navbar } from '~/components/Navbar'
-import { Sidebar } from '~/components/Sidebar'
 import { isTeacher } from '~/lib/user-role.server'
+import { Navbar } from './_components/Navbar'
+import { Sidebar } from './_components/Sidebar'
 
 export async function loader(args: LoaderFunctionArgs) {
   const checkTeacher = await isTeacher(args)

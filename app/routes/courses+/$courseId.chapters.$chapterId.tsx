@@ -3,10 +3,10 @@ import { json, LoaderFunctionArgs, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { FileIcon } from 'lucide-react'
 import { Banner } from '~/components/Banner'
-import { CourseEnrollButton } from '~/components/CourseEnrollButton'
 import { Separator } from '~/components/ui/separator'
-import { VideoPlayer } from '~/components/VideoPlayer'
 import { getChapter } from '~/lib/get-chapter.server'
+import { CourseEnrollButton } from './_components/CourseEnrollButton'
+import { VideoPlayer } from './_components/VideoPlayer'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)

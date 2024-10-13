@@ -20,20 +20,20 @@ import {
 } from 'remix-toast'
 import { ClientOnly } from 'remix-utils/client-only'
 import { Banner } from '~/components/Banner'
-import { BunnyChapterVideoForm } from '~/components/BunnyChapterVideoForm.client'
+import { BunnyChapterVideoForm } from '~/routes/_dashboard+/teacher+/_components/BunnyChapterVideoForm.client'
 import {
   ChapterAccessForm,
   chapterAccessFormSchema,
-} from '~/components/ChapterAccessForm'
-import { ChapterActions } from '~/components/ChapterActions'
+} from '~/routes/_dashboard+/teacher+/_components/ChapterAccessForm'
+import { ChapterActions } from '~/routes/_dashboard+/teacher+/_components/ChapterActions'
 import {
   ChapterDescriptionForm,
   chapterDescriptionFormSchema,
-} from '~/components/ChapterDescriptionForm'
-import { ChapterTitleForm } from '~/components/ChapterTitleForm'
-import { chapterVideoFormSchema } from '~/components/ChapterVideoForm'
+} from '~/routes/_dashboard+/teacher+/_components/ChapterDescriptionForm'
+import { ChapterTitleForm } from '~/routes/_dashboard+/teacher+/_components/ChapterTitleForm'
+import { chapterVideoFormSchema } from '~/routes/_dashboard+/teacher+/_components/ChapterVideoForm'
 import { IconBadge } from '~/components/IconBadge'
-import { titleFormSchema } from '~/components/TitleForm'
+import { titleFormSchema } from '~/routes/_dashboard+/teacher+/_components/TitleForm'
 import {
   deleteBunnyVideo,
   getBunnyVideoStatus,

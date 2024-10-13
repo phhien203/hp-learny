@@ -5,29 +5,28 @@ import { PencilIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { Button } from '~/components/ui/button'
-import { Textarea } from './ui/textarea'
 import { cn } from '~/lib/utils'
+import { Input } from '../../../../components/ui/input'
+import { formatPrice } from '~/lib/format'
 
-export const descriptionFormSchema = z.object({
-  description: z.string({ required_error: 'Description is required' }).min(1, {
-    message: 'Description is required',
-  }),
+export const priceFormSchema = z.object({
+  price: z.coerce.number(),
 })
 
-interface DescriptionFormProps {
-  initialData?: string | null
+interface PriceFormProps {
+  initialData?: number | null
 }
 
-export function DescriptionForm({ initialData }: DescriptionFormProps) {
+export function PriceForm({ initialData }: PriceFormProps) {
   const [form, fields] = useForm({
     defaultValue: {
-      description: initialData ?? '',
+      price: initialData || 0,
     },
-    constraint: getZodConstraint(descriptionFormSchema),
+    constraint: getZodConstraint(priceFormSchema),
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onBlur',
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: descriptionFormSchema })
+      return parseWithZod(formData, { schema: priceFormSchema })
     },
   })
   const fetcher = useFetcher()
@@ -42,7 +41,7 @@ export function DescriptionForm({ initialData }: DescriptionFormProps) {
   return (
     <div className="mt-6 rounded-md border bg-slate-100 p-4">
       <div className="flex items-center justify-between font-medium">
-        Course description
+        Course price
         <Button
           size="sm"
           variant="ghost"
@@ -66,7 +65,7 @@ export function DescriptionForm({ initialData }: DescriptionFormProps) {
             !initialData && 'italic text-slate-500',
           )}
         >
-          {initialData ?? 'No description'}
+          {initialData ? formatPrice(initialData) : 'No price'}
         </p>
       )}
 
@@ -77,17 +76,18 @@ export function DescriptionForm({ initialData }: DescriptionFormProps) {
           {...getFormProps(form)}
         >
           <div>
-            <Textarea
-              placeholder="e.g. This course is about..."
-              {...getInputProps(fields.description, { type: 'text' })}
-              defaultValue={initialData ?? ''}
+            <Input
+              step={0.01}
+              placeholder="e.g. 9.99"
+              {...getInputProps(fields.price, { type: 'number' })}
+              defaultValue={initialData || 0}
               disabled={
                 fetcher.state === 'submitting' || fetcher.state === 'loading'
               }
             />
 
             <div className="mt-2 h-4 text-xs text-red-500">
-              {fields.description.errors}
+              {fields.price.errors}
             </div>
           </div>
 
@@ -95,7 +95,7 @@ export function DescriptionForm({ initialData }: DescriptionFormProps) {
             <Button
               type="submit"
               name="intent"
-              value="updateDescription"
+              value="updatePrice"
               disabled={
                 fetcher.state === 'submitting' || fetcher.state === 'loading'
               }

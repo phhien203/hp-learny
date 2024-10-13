@@ -1,13 +1,11 @@
 import { getAuth } from '@clerk/remix/ssr.server'
 import { json, LoaderFunctionArgs, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { Categories } from '~/components/Categories'
-import CoursesList, {
-  CourseWithProgressWithCategory,
-} from '~/components/CoursesList'
-import { SearchInput } from '~/components/SearchInput'
 import { db } from '~/lib/db.server'
 import { getCourses } from '~/lib/get-courses.server'
+import CoursesList, {
+  CourseWithProgressWithCategory,
+} from './_components/CoursesList'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)
@@ -28,7 +26,7 @@ export async function loader(args: LoaderFunctionArgs) {
 }
 
 export default function SearchPage() {
-  const { categories, courses } = useLoaderData<typeof loader>()
+  const { courses } = useLoaderData<typeof loader>()
 
   return (
     <>

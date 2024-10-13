@@ -1,6 +1,6 @@
 import { Chapter, Course, UserProgress } from '@prisma/client'
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
 import { MenuIcon } from 'lucide-react'
+import { Sheet, SheetContent, SheetTrigger } from '~/components/ui/sheet'
 import { CourseSidebar } from './CourseSidebar'
 
 export function CourseMobileSidebar({
