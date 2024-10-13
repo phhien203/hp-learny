@@ -1,7 +1,10 @@
 import { getAuth } from '@clerk/remix/ssr.server'
 import { json, LoaderFunctionArgs, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import { FileIcon } from 'lucide-react'
 import { Banner } from '~/components/Banner'
+import { CourseEnrollButton } from '~/components/CourseEnrollButton'
+import { Separator } from '~/components/ui/separator'
 import { VideoPlayer } from '~/components/VideoPlayer'
 import { getChapter } from '~/lib/get-chapter.server'
 
@@ -80,6 +83,48 @@ export default function ChapterDetailsPage() {
             isLocked={isLocked}
             completeOnEnd={completeOnEnd}
           />
+        </div>
+
+        <div>
+          <div className="flex flex-col items-center justify-between p-4 md:flex-row">
+            <h2 className="text-2xl font-semibold">{chapter.title}</h2>
+
+            {purchase ? (
+              <div>TODO course progress button</div>
+            ) : (
+              <CourseEnrollButton
+                courseId={course.id}
+                price={course.price ?? 0}
+              />
+            )}
+          </div>
+
+          <Separator className="" />
+
+          <div className="p-4">
+            <p className="text-sm text-slate-700">{chapter.description}</p>
+          </div>
+
+          {attachments.length ? (
+            <>
+              <Separator />
+
+              <div className="p-4">
+                {attachments.map((attachment) => (
+                  <a
+                    key={attachment.id}
+                    href={attachment.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex w-full items-center rounded-md border bg-sky-200 p-3 text-sky-700 hover:underline"
+                  >
+                    <FileIcon className="mr-2 h-4 w-4" />
+                    <p className="line-clamp-1">{attachment.name}</p>
+                  </a>
+                ))}
+              </div>
+            </>
+          ) : null}
         </div>
       </div>
     </div>
