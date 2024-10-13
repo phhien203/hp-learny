@@ -108,6 +108,7 @@ export default function TeacherCoursePage() {
               Complete all fields {completionText}
             </span>
           </div>
+
           <CourseAction
             disabled={!isComplete}
             courseId={course.id}

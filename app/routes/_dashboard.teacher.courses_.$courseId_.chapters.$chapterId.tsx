@@ -18,8 +18,9 @@ import {
   jsonWithSuccess,
   redirectWithSuccess,
 } from 'remix-toast'
+import { ClientOnly } from 'remix-utils/client-only'
 import { Banner } from '~/components/Banner'
-import { BunnyChapterVideoForm } from '~/components/BunnyChapterVideoForm'
+import { BunnyChapterVideoForm } from '~/components/BunnyChapterVideoForm.client'
 import {
   ChapterAccessForm,
   chapterAccessFormSchema,
@@ -33,7 +34,11 @@ import { ChapterTitleForm } from '~/components/ChapterTitleForm'
 import { chapterVideoFormSchema } from '~/components/ChapterVideoForm'
 import { IconBadge } from '~/components/IconBadge'
 import { titleFormSchema } from '~/components/TitleForm'
-import { signVideoUrl } from '~/lib/bunny.server'
+import {
+  deleteBunnyVideo,
+  getBunnyVideoStatus,
+  signVideoUrl,
+} from '~/lib/bunny.server'
 import { db } from '~/lib/db.server'
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -67,18 +72,26 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect('/')
   }
 
-  const unsignedVideoUrl = chapter.videoUrl
+  const videoId = chapter.videoUrl
   let signedVideoUrl = ''
 
-  if (unsignedVideoUrl) {
-    signedVideoUrl = signVideoUrl(unsignedVideoUrl)
+  let videoStatus: number | null = null
+  let encodeProgress = 0
+
+  if (videoId) {
+    signedVideoUrl = signVideoUrl(videoId)
+    const status = await getBunnyVideoStatus(videoId)
+
+    videoStatus = status?.[0] ?? null
+    encodeProgress = status?.[1] || 0
   }
 
-  return json({ chapter, signedVideoUrl })
+  return json({ chapter, signedVideoUrl, videoStatus, encodeProgress })
 }
 
 export default function ChapterPage() {
-  const { chapter, signedVideoUrl } = useLoaderData<typeof loader>()
+  const { chapter, signedVideoUrl, videoStatus, encodeProgress } =
+    useLoaderData<typeof loader>()
   const { courseId } = useParams<{ courseId: string }>()
 
   const requiredFields = [chapter.title, chapter.description, chapter.videoUrl]
@@ -152,10 +165,21 @@ export default function ChapterPage() {
               <h2 className="text-xl">Add a video</h2>
             </div>
 
-            <BunnyChapterVideoForm
-              chapterId={chapter.id}
-              videoUrl={signedVideoUrl}
-            />
+            <ClientOnly
+              fallback={
+                <div className="flex aspect-video h-[360px] w-full items-center justify-center">
+                  <p className="text-sm text-slate-500">Loading...</p>
+                </div>
+              }
+            >
+              {() => (
+                <BunnyChapterVideoForm
+                  videoUrl={signedVideoUrl}
+                  videoStatus={videoStatus}
+                  encodeProgress={encodeProgress}
+                />
+              )}
+            </ClientOnly>
           </div>
         </div>
       </div>
@@ -228,6 +252,10 @@ async function deleteChapter(args: ActionFunctionArgs, userId: string) {
     )
   }
 
+  if (chapter.videoUrl) {
+    await deleteBunnyVideo(chapter.videoUrl)
+  }
+
   await db.chapter.delete({
     where: {
       id: chapterId,
@@ -281,6 +309,27 @@ async function updateChapter(args: ActionFunctionArgs) {
   }
 
   if (submission?.status === 'success') {
+    if ((submission.value as { videoUrl: string }).videoUrl) {
+      const chapter = await db.chapter.findUnique({
+        where: {
+          id: args.params.chapterId,
+          courseId: args.params.courseId,
+        },
+      })
+
+      if (!chapter) {
+        return jsonWithError(
+          { error: 'Chapter not found' },
+          { message: 'Chapter not found' },
+          { status: 404 },
+        )
+      }
+
+      if (chapter.videoUrl) {
+        await deleteBunnyVideo(chapter.videoUrl)
+      }
+    }
+
     await db.chapter.update({
       where: {
         id: args.params.chapterId,

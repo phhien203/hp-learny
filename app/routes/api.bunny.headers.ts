@@ -4,14 +4,14 @@ import { createBunnyVideo } from '~/lib/bunny.server'
 
 export async function action(args: ActionFunctionArgs) {
   try {
-    const formData = await args.request.formData()
-    const title = formData.get('title') as string
+    const body = await args.request.json()
+    const fileName = body.fileName as string
 
-    if (!title) {
-      throw new Error('Title is required')
+    if (!fileName) {
+      throw new Error('File name is required')
     }
 
-    const videoId = await createBunnyVideo(title)
+    const videoId = await createBunnyVideo(fileName)
 
     const now = Math.floor(new Date().valueOf() / 1000)
     const expiration = 3600 // 1 hour
@@ -23,10 +23,10 @@ export async function action(args: ActionFunctionArgs) {
 
     return json({
       headers: {
-        VideoId: videoId,
-        LibraryId: process.env.BUNNY_LIBRARY_ID!,
-        AuthorizationExpire: expires,
-        AuthorizationSignature: token,
+        videoId: videoId,
+        libraryId: process.env.BUNNY_LIBRARY_ID!,
+        authorizationExpire: expires,
+        authorizationSignature: token,
       },
     })
   } catch (error) {

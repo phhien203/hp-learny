@@ -1,10 +1,10 @@
 import crypto from 'crypto'
 
-export function signVideoUrl(unsignedVideoUrl: string) {
-  const parsedUrl = new URL(unsignedVideoUrl)
+export function signVideoUrl(videoId: string) {
+  const url = new URL(
+    `https://iframe.mediadelivery.net/embed/${process.env.BUNNY_LIBRARY_ID}/${videoId}`,
+  )
 
-  const pathSegments = parsedUrl.pathname.split('/') // Example: ['', 'embed', '228530', 'cbf30637-b0de-4f8f-9e43-2199a5c5e967']
-  const videoId = pathSegments[3]
   const expires =
     Math.floor(new Date().valueOf() / 1000) +
     parseInt(process.env.BUNNY_VIDEO_EXPIRES_SECONDS || '600') // 10 minutes
@@ -12,14 +12,53 @@ export function signVideoUrl(unsignedVideoUrl: string) {
   const hash = crypto.createHash('sha256')
   const token = hash.update(data).digest('hex')
 
-  parsedUrl.searchParams.set('token', token)
-  parsedUrl.searchParams.set('expires', expires.toString())
-  const signedVideoUrl = parsedUrl.toString()
+  url.searchParams.set('token', token)
+  url.searchParams.set('expires', expires.toString())
+  const signedVideoUrl = url.toString()
 
   return signedVideoUrl
 }
 
-export async function createBunnyVideo(chapterTitle: string) {
+export async function getBunnyVideoStatus(videoId: string) {
+  const url = `${process.env.BUNNY_UPLOAD_URL}/${process.env.BUNNY_LIBRARY_ID}/videos/${videoId}`
+  const response = await fetch(url, {
+    headers: {
+      accept: 'application/json',
+      AccessKey: `${process.env.BUNNY_API_KEY}`,
+    },
+  })
+
+  if (!response.ok) {
+    console.error('Failed to get Bunny video status', response)
+    return null
+  }
+
+  const data = await response.json()
+
+  return [data.status as number, (data.encodeProgress as number) || 0] as const
+}
+
+export async function deleteBunnyVideo(videoId: string) {
+  try {
+    const url = `${process.env.BUNNY_UPLOAD_URL}/${process.env.BUNNY_LIBRARY_ID}/videos/${videoId}`
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        AccessKey: `${process.env.BUNNY_API_KEY}`,
+      },
+    })
+
+    if (!response.ok) {
+      console.warn('Delete Bunny video not successful', response)
+    }
+
+    console.log('Deleted Bunny video', response)
+  } catch (error) {
+    console.warn('Failed to delete Bunny video', error)
+  }
+}
+
+export async function createBunnyVideo(fileName: string) {
   const bunnyLibraryId = process.env.BUNNY_LIBRARY_ID
   const bunnyApiKey = process.env.BUNNY_API_KEY
 
@@ -37,7 +76,7 @@ export async function createBunnyVideo(chapterTitle: string) {
       AccessKey: `${bunnyApiKey}`,
     },
     body: JSON.stringify({
-      title: `${chapterTitle}_${new Date().getTime()}`,
+      title: fileName,
     }),
   }
 

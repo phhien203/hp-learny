@@ -79,11 +79,11 @@ export async function getChapter({
       },
     })
 
-    const unsignedVideoUrl = chapter.videoUrl
+    const videoId = chapter.videoUrl
     let signedVideoUrl = ''
 
-    if (unsignedVideoUrl) {
-      signedVideoUrl = signVideoUrl(unsignedVideoUrl)
+    if (videoId) {
+      signedVideoUrl = signVideoUrl(videoId)
     }
 
     return {

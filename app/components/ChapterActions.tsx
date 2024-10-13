@@ -1,8 +1,8 @@
+import { useFetcher } from '@remix-run/react'
+import { Trash2Icon } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { ConfirmModal } from '~/components/ConfirmModal'
 import { Button } from '~/components/ui/button'
-import { TrashIcon } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useFetcher } from '@remix-run/react'
 
 interface ChapterActionsProps {
   disabled: boolean
@@ -86,8 +86,8 @@ export function ChapterActions({
       </Button>
 
       <ConfirmModal onConfirm={onDelete}>
-        <Button size="sm" disabled={isLoading}>
-          <TrashIcon className="size-4" />
+        <Button size="sm" variant="destructive" disabled={isLoading}>
+          <Trash2Icon className="size-4" />
         </Button>
       </ConfirmModal>
     </div>

@@ -1,5 +1,5 @@
 import { useFetcher } from '@remix-run/react'
-import { TrashIcon } from 'lucide-react'
+import { Trash2Icon } from 'lucide-react'
 import { ConfirmModal } from '~/components/ConfirmModal'
 import { Button } from '~/components/ui/button'
 
@@ -67,13 +67,14 @@ export function CourseAction({
       >
         <Button
           size="sm"
+          variant="destructive"
           disabled={
             deleteCourse.state !== 'idle' ||
             publishCourse.state !== 'idle' ||
             unpublishCourse.state !== 'idle'
           }
         >
-          <TrashIcon className="size-4" />
+          <Trash2Icon className="size-4" />
         </Button>
       </ConfirmModal>
     </div>
