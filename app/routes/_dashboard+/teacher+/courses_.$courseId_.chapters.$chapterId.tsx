@@ -20,20 +20,7 @@ import {
 } from 'remix-toast'
 import { ClientOnly } from 'remix-utils/client-only'
 import { Banner } from '~/components/Banner'
-import { BunnyChapterVideoForm } from '~/routes/_dashboard+/teacher+/_components/BunnyChapterVideoForm.client'
-import {
-  ChapterAccessForm,
-  chapterAccessFormSchema,
-} from '~/routes/_dashboard+/teacher+/_components/ChapterAccessForm'
-import { ChapterActions } from '~/routes/_dashboard+/teacher+/_components/ChapterActions'
-import {
-  ChapterDescriptionForm,
-  chapterDescriptionFormSchema,
-} from '~/routes/_dashboard+/teacher+/_components/ChapterDescriptionForm'
-import { ChapterTitleForm } from '~/routes/_dashboard+/teacher+/_components/ChapterTitleForm'
-import { chapterVideoFormSchema } from '~/routes/_dashboard+/teacher+/_components/ChapterVideoForm'
 import { IconBadge } from '~/components/IconBadge'
-import { titleFormSchema } from '~/routes/_dashboard+/teacher+/_components/TitleForm'
 import {
   deleteBunnyVideo,
   getBunnyVideoStatus,
@@ -41,6 +28,19 @@ import {
 } from '~/lib/bunny.server'
 import { db } from '~/lib/db.server'
 import { isTeacher } from '~/lib/user-role.server'
+import { BunnyChapterVideoForm } from './_components/BunnyChapterVideoForm.client'
+import {
+  ChapterAccessForm,
+  chapterAccessFormSchema,
+} from './_components/ChapterAccessForm'
+import { ChapterActions } from './_components/ChapterActions'
+import {
+  ChapterDescriptionForm,
+  chapterDescriptionFormSchema,
+} from './_components/ChapterDescriptionForm'
+import { ChapterTitleForm } from './_components/ChapterTitleForm'
+import { chapterVideoFormSchema } from './_components/ChapterVideoForm'
+import { titleFormSchema } from './_components/TitleForm'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)
@@ -117,9 +117,7 @@ export default function ChapterPage() {
           label="This chapter is unpublished. It will not be visible to students until it is published."
           variant="warning"
         />
-      ) : (
-        <div className="h-[54px]" />
-      )}
+      ) : null}
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="w-full">

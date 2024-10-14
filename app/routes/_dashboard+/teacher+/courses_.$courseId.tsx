@@ -18,21 +18,21 @@ import {
   jsonWithSuccess,
   redirectWithSuccess,
 } from 'remix-toast'
-import { AttachmentForm } from '~/routes/_dashboard+/teacher+/_components/AttachmentForm'
 import { Banner } from '~/components/Banner'
-import { CategoryForm, categoryFormSchema } from '~/routes/_dashboard+/teacher+/_components/CategoryForm'
-import { ChaptersForm } from '~/routes/_dashboard+/teacher+/_components/ChaptersForm'
-import { CourseAction } from '~/routes/_dashboard+/teacher+/_components/CourseActions'
+import { IconBadge } from '~/components/IconBadge'
+import { db } from '~/lib/db.server'
+import { isTeacher } from '~/lib/user-role.server'
+import { AttachmentForm } from './_components/AttachmentForm'
+import { CategoryForm, categoryFormSchema } from './_components/CategoryForm'
+import { ChaptersForm } from './_components/ChaptersForm'
+import { CourseAction } from './_components/CourseActions'
 import {
   DescriptionForm,
   descriptionFormSchema,
-} from '~/routes/_dashboard+/teacher+/_components/DescriptionForm'
-import { IconBadge } from '~/components/IconBadge'
-import { ImageForm, imageFormSchema } from '~/routes/_dashboard+/teacher+/_components/ImageForm'
-import { PriceForm, priceFormSchema } from '~/routes/_dashboard+/teacher+/_components/PriceForm'
-import { TitleForm, titleFormSchema } from '~/routes/_dashboard+/teacher+/_components/TitleForm'
-import { db } from '~/lib/db.server'
-import { isTeacher } from '~/lib/user-role.server'
+} from './_components/DescriptionForm'
+import { ImageForm, imageFormSchema } from './_components/ImageForm'
+import { PriceForm, priceFormSchema } from './_components/PriceForm'
+import { TitleForm, titleFormSchema } from './_components/TitleForm'
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { userId } = await getAuth(args)
@@ -104,9 +104,7 @@ export default function TeacherCoursePage() {
           label="This course is unpublished. It will not be visible in the course list."
           variant="warning"
         />
-      ) : (
-        <div className="h-[54px]" />
-      )}
+      ) : null}
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-y-2">
