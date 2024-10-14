@@ -18,7 +18,7 @@ FROM base as build
 
 # Install packages needed to build node modules
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential node-gyp openssl pkg-config python-is-python3
+  apt-get install --no-install-recommends -y build-essential node-gyp openssl pkg-config python-is-python3
 
 # Install node modules
 COPY package-lock.json package.json ./
@@ -43,8 +43,8 @@ FROM base
 
 # Install packages needed for deployment
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y openssl sqlite3 fuse3 ca-certificates && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+  apt-get install --no-install-recommends -y openssl sqlite3 fuse3 ca-certificates && \
+  rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy built application
 COPY --from=build /app /app
@@ -59,15 +59,16 @@ RUN echo "#!/bin/sh\nset -x\nsqlite3 \$DATABASE_URL" > /usr/local/bin/database-c
 # Entrypoint prepares the database.
 ENTRYPOINT [ "/app/docker-entrypoint.js" ]
 
-# ENV LITEFS_DIR="/litefs"
-# Start the server by default, this can be overwritten at runtime
-# EXPOSE 3000
-# ENV DATABASE_URL="file://$LITEFS_DIR/sqlite.db"
-ENV DATABASE_URL="file:///data/sqlite.db"
-ENV PORT="8080"
+ENV LITEFS_DIR="/litefs"
+ENV DATABASE_FILENAME="$LITEFS_DIR/sqlite.db"
+ENV DATABASE_URL="file:$DATABASE_FILENAME"
+ENV INTERNAL_PORT="8080"
+ENV PORT="8081"
+# ENV DATABASE_URL="file:///data/sqlite.db"
+# ENV PORT="8080"
 ENV NODE_ENV="production"
 
-# COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
-# ADD litefs.yml /etc/litefs.yml
+COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
+ADD litefs.yml /etc/litefs.yml
 
-CMD [ "npm", "run", "start" ]
+CMD [ "litefs", "mount", "--", "npm", "run", "start" ]
