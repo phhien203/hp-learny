@@ -1,12 +1,20 @@
 import { getAuth } from '@clerk/remix/ssr.server'
-import { json, LoaderFunctionArgs, redirect } from '@remix-run/node'
+import {
+  ActionFunctionArgs,
+  json,
+  LoaderFunctionArgs,
+  redirect,
+} from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { FileIcon } from 'lucide-react'
 import { Banner } from '~/components/Banner'
 import { Separator } from '~/components/ui/separator'
 import { getChapter } from '~/lib/get-chapter.server'
 import { CourseEnrollButton } from './_components/CourseEnrollButton'
+import { CourseProgressButton } from './_components/CourseProgressButton'
 import { VideoPlayer } from './_components/VideoPlayer'
+import { db } from '~/lib/db.server'
+import { jsonWithSuccess, redirectWithSuccess } from 'remix-toast'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)
@@ -90,7 +98,10 @@ export default function ChapterDetailsPage() {
             <h2 className="text-2xl font-semibold">{chapter.title}</h2>
 
             {purchase ? (
-              <div>TODO course progress button</div>
+              <CourseProgressButton
+                nextChapterId={nextChapter?.id ?? ''}
+                isCompleted={!!userProgress?.isCompleted}
+              />
             ) : (
               <CourseEnrollButton
                 courseId={course.id}
@@ -129,4 +140,60 @@ export default function ChapterDetailsPage() {
       </div>
     </div>
   )
+}
+
+export async function action(args: ActionFunctionArgs) {
+  const { userId } = await getAuth(args)
+
+  if (!userId) {
+    return json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { courseId, chapterId } = args.params
+
+  if (!courseId || !chapterId) {
+    return json(
+      { error: 'Course ID and chapter ID are required' },
+      { status: 400 },
+    )
+  }
+
+  const formData = await args.request.formData()
+  const action = formData.get('action')
+
+  if (action === 'toggle-complete') {
+    const isCompleted = formData.get('isCompleted') === 'true'
+    const nextChapterId = formData.get('nextChapterId')
+
+    await db.userProgress.upsert({
+      where: {
+        userId_chapterId: {
+          userId,
+          chapterId,
+        },
+      },
+      update: {
+        isCompleted,
+      },
+      create: {
+        userId,
+        chapterId,
+        isCompleted,
+      },
+    })
+
+    if (isCompleted && nextChapterId) {
+      return redirectWithSuccess(
+        `/courses/${courseId}/chapters/${nextChapterId}`,
+        { message: 'Progress updated' },
+        { status: 302 },
+      )
+    }
+
+    return jsonWithSuccess(
+      { completed: isCompleted },
+      { message: 'Progress updated' },
+      { status: 200 },
+    )
+  }
 }

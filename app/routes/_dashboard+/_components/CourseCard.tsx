@@ -1,5 +1,6 @@
 import { Link } from '@remix-run/react'
 import { BookOpenIcon } from 'lucide-react'
+import { CourseProgress } from '~/components/CourseProgress'
 import { IconBadge } from '~/components/IconBadge'
 import { formatPrice } from '~/lib/format'
 
@@ -45,7 +46,11 @@ export default function CourseCard({
           </div>
 
           {progress !== null ? (
-            <div></div>
+            <CourseProgress
+              variant={progress === 100 ? 'success' : 'default'}
+              value={progress}
+              size="sm"
+            />
           ) : (
             <p className="text-md font-medium text-slate-700 md:text-sm">
               {formatPrice(price)}

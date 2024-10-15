@@ -1,4 +1,5 @@
 import { Chapter, Course, Purchase, UserProgress } from '@prisma/client'
+import { CourseProgress } from '~/components/CourseProgress'
 import { CourseSidebarItem } from './CourseSidebarItem'
 
 export function CourseSidebar({
@@ -16,9 +17,13 @@ export function CourseSidebar({
 }) {
   return (
     <div className="flex h-full flex-col overflow-y-auto border-r shadow-sm">
-      <div className="flex h-[69px] flex-col border-b p-5">
+      <div className="flex flex-col border-b p-5">
         <h1 className="font-semibold">{course.title}</h1>
-        {/* check purchase and add progress */}
+        {purchase ? (
+          <div className="mt-10">
+            <CourseProgress variant="success" value={progressCount} />
+          </div>
+        ) : null}
       </div>
 
       <div className="flex w-full flex-col">
