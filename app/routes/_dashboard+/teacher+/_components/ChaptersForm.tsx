@@ -60,8 +60,6 @@ export function ChaptersForm({ initialData, courseId }: ChaptersFormProps) {
   const onReorder = (bulkUpdateData: { id: string; position: number }[]) => {
     setIsUpdating(true)
 
-    console.log(bulkUpdateData)
-
     reorderFetcher.submit(
       { list: JSON.stringify(bulkUpdateData) },
       {
@@ -112,9 +110,7 @@ export function ChaptersForm({ initialData, courseId }: ChaptersFormProps) {
             <Input
               placeholder="e.g. Introduction to the course"
               {...getInputProps(fields.title, { type: 'text' })}
-              disabled={
-                fetcher.state === 'submitting' || fetcher.state === 'loading'
-              }
+              disabled={fetcher.state !== 'idle'}
             />
 
             <div className="mt-2 h-4 text-xs text-red-500">
@@ -123,13 +119,8 @@ export function ChaptersForm({ initialData, courseId }: ChaptersFormProps) {
           </div>
 
           <div className="flex items-center gap-x-2">
-            <Button
-              type="submit"
-              disabled={
-                fetcher.state === 'submitting' || fetcher.state === 'loading'
-              }
-            >
-              Create
+            <Button type="submit" disabled={fetcher.state !== 'idle'}>
+              {fetcher.state !== 'idle' ? 'Creating...' : 'Create'}
             </Button>
           </div>
         </fetcher.Form>

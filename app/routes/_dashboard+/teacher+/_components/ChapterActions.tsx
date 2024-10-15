@@ -82,7 +82,13 @@ export function ChapterActions({
         disabled={disabled || isLoading}
         onClick={onTogglePublish}
       >
-        {isPublished ? 'Unpublish' : 'Publish'}
+        {isPublished
+          ? unpublishChapter.state !== 'idle'
+            ? 'Unpublishing...'
+            : 'Unpublish'
+          : publishChapter.state !== 'idle'
+            ? 'Publishing...'
+            : 'Publish'}
       </Button>
 
       <ConfirmModal onConfirm={onDelete}>

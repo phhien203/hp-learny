@@ -124,11 +124,9 @@ export function ChapterDescriptionForm({
               type="submit"
               name="intent"
               value="updateChapterDescription"
-              disabled={
-                fetcher.state === 'submitting' || fetcher.state === 'loading'
-              }
+              disabled={fetcher.state !== 'idle'}
             >
-              Save
+              {fetcher.state !== 'idle' ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </fetcher.Form>

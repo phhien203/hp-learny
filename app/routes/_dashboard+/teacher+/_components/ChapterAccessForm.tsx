@@ -79,11 +79,6 @@ export function ChapterAccessForm({ initialData }: ChapterAccessFormProps) {
           {...getFormProps(form)}
         >
           <div>
-            {/* <input
-              {...getInputProps(fields.isFree, { type: 'checkbox' })}
-              defaultChecked={Boolean(initialData)}
-            /> */}
-
             <Checkbox
               id={fields.isFree.id}
               name={fields.isFree.name}
@@ -103,11 +98,9 @@ export function ChapterAccessForm({ initialData }: ChapterAccessFormProps) {
               type="submit"
               name="intent"
               value="updateChapterAccess"
-              disabled={
-                fetcher.state === 'submitting' || fetcher.state === 'loading'
-              }
+              disabled={fetcher.state !== 'idle'}
             >
-              Save
+              {fetcher.state !== 'idle' ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </fetcher.Form>

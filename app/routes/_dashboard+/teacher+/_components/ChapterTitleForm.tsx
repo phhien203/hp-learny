@@ -71,9 +71,7 @@ export function ChapterTitleForm({ initialData }: ChapterTitleFormProps) {
               placeholder="e.g. Introduction to the course"
               {...getInputProps(fields.title, { type: 'text' })}
               defaultValue={initialData}
-              disabled={
-                fetcher.state === 'submitting' || fetcher.state === 'loading'
-              }
+              disabled={fetcher.state !== 'idle'}
             />
 
             <div className="mt-2 h-4 text-xs text-red-500">
@@ -86,11 +84,9 @@ export function ChapterTitleForm({ initialData }: ChapterTitleFormProps) {
               type="submit"
               name="intent"
               value="updateChapterTitle"
-              disabled={
-                fetcher.state === 'submitting' || fetcher.state === 'loading'
-              }
+              disabled={fetcher.state !== 'idle'}
             >
-              Save
+              {fetcher.state !== 'idle' ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </fetcher.Form>
