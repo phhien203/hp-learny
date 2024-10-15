@@ -4,8 +4,9 @@ import { db } from '~/lib/db.server'
 import { stripe } from '~/lib/stripe'
 
 export async function action(args: ActionFunctionArgs) {
-  const body = await args.request.json()
+  const body = await args.request.text()
   const signature = args.request.headers.get('Stripe-Signature') as string
+  console.log('Webhook received', body)
 
   let event: Stripe.Event
 
