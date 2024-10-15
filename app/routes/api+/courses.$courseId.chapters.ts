@@ -1,7 +1,12 @@
 import { getAuth } from '@clerk/remix/ssr.server'
 import { parseWithZod } from '@conform-to/zod'
 import { ActionFunctionArgs, json } from '@remix-run/node'
-import { jsonWithError, jsonWithSuccess } from 'remix-toast'
+import {
+  jsonWithError,
+  jsonWithSuccess,
+  redirectWithError,
+  redirectWithSuccess,
+} from 'remix-toast'
 import { chaptersFormSchema } from '~/routes/_dashboard+/teacher+/_components/ChaptersForm'
 import { db } from '~/lib/db.server'
 
@@ -58,10 +63,10 @@ export async function action(args: ActionFunctionArgs) {
       },
     })
 
-    return jsonWithSuccess(
-      { chapter },
+    return redirectWithSuccess(
+      `/teacher/courses/${courseId}/chapters/${chapter.id}`,
       { message: 'Chapter created successfully' },
-      { status: 201 },
+      { status: 302 },
     )
   } catch (error) {
     console.log('[COURSES_CHAPTERS]', error)
