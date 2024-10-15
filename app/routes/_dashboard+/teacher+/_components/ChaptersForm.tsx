@@ -83,20 +83,6 @@ export function ChaptersForm({ initialData, courseId }: ChaptersFormProps) {
 
       <div className="flex items-center justify-between font-medium">
         Course chapters
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => setIsCreating((value) => !value)}
-        >
-          {isCreating ? (
-            <>Cancel</>
-          ) : (
-            <>
-              <PlusCircleIcon className="mr-2 size-4" />
-              New chapter
-            </>
-          )}
-        </Button>
       </div>
 
       {isCreating ? (
@@ -144,9 +130,26 @@ export function ChaptersForm({ initialData, courseId }: ChaptersFormProps) {
       )}
 
       {!isCreating && (
-        <p className="mt-4 text-xs text-muted-foreground">
-          Drag and drop to reorder the chapters
-        </p>
+        <div className="mt-4 flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">
+            Drag and drop to reorder the chapters
+          </p>
+
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setIsCreating((value) => !value)}
+          >
+            {isCreating ? (
+              <>Cancel</>
+            ) : (
+              <>
+                <PlusCircleIcon className="mr-2 size-4" />
+                New chapter
+              </>
+            )}
+          </Button>
+        </div>
       )}
     </div>
   )
