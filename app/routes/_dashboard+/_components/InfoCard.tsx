@@ -19,7 +19,7 @@ export function InfoCard({
       <div>
         <p className="font-medium">{label}</p>
 
-        <p className="text-gray-500 text-sm">
+        <p className="text-sm text-gray-500">
           {numberOfItems} {numberOfItems === 1 ? 'Course' : 'Courses'}
         </p>
       </div>

@@ -13,10 +13,7 @@ import { CheckCircleIcon, ClockIcon } from 'lucide-react'
 import { InfoCard } from './_components/InfoCard'
 
 export const meta: MetaFunction = () => {
-  return [
-    { title: 'PET LMS' },
-    { name: 'description', content: 'PET LMS' },
-  ]
+  return [{ title: 'PET LMS' }, { name: 'description', content: 'PET LMS' }]
 }
 
 export const loader: LoaderFunction = async (args: LoaderFunctionArgs) => {
