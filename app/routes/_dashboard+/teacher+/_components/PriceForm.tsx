@@ -10,7 +10,7 @@ import { Input } from '../../../../components/ui/input'
 import { formatPrice } from '~/lib/format'
 
 export const priceFormSchema = z.object({
-  price: z.coerce.number(),
+  price: z.coerce.number().min(0),
 })
 
 interface PriceFormProps {

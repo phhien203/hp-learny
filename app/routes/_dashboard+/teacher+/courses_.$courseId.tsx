@@ -85,7 +85,6 @@ export default function TeacherCoursePage() {
     course.title,
     course.description,
     course.imageUrl,
-    course.price,
     course.categoryId,
     course.chapters.some((chapter) => chapter.isPublished),
   ]
