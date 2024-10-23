@@ -1,9 +1,9 @@
 import { getAuth } from '@clerk/remix/ssr.server'
-import { createClerkClient } from '@clerk/remix/api.server'
 import { ActionFunctionArgs, json } from '@remix-run/node'
+import { jsonWithError, jsonWithSuccess } from 'remix-toast'
+import { getUserEmail } from '~/lib/clerk.server'
 import { db } from '~/lib/db.server'
-import { stripe } from '~/lib/stripe'
-import Stripe from 'stripe'
+import { isWhitelistedUser } from '~/lib/user-role.server'
 
 export async function action(args: ActionFunctionArgs) {
   try {
@@ -19,11 +19,9 @@ export async function action(args: ActionFunctionArgs) {
       return json({ error: 'Course ID is required' }, { status: 400 })
     }
 
-    const user = await createClerkClient({
-      secretKey: process.env.CLERK_SECRET_KEY,
-    }).users.getUser(userId)
+    const userEmail = await getUserEmail(userId)
 
-    if (!user || !user.id || !user.emailAddresses?.[0]?.emailAddress) {
+    if (!userEmail || !isWhitelistedUser(userEmail)) {
       return json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -48,58 +46,71 @@ export async function action(args: ActionFunctionArgs) {
     })
 
     if (purchase) {
-      return json({ error: 'Purchase already exists' }, { status: 400 })
+      return jsonWithError(
+        { ok: false },
+        { message: 'Purchase already exists' },
+        { status: 400 },
+      )
     }
 
-    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [
-      {
-        quantity: 1,
-        price_data: {
-          currency: 'USD',
-          product_data: {
-            name: course.title,
-            description: course.description!,
-          },
-          unit_amount: Math.round(course.price! * 100),
-        },
-      },
-    ]
-
-    let stripeCustomer = await db.stripeCustomer.findUnique({
-      where: {
+    await db.purchase.create({
+      data: {
         userId,
-      },
-      select: {
-        stripeCustomerId: true,
-      },
-    })
-
-    if (!stripeCustomer) {
-      const customer = await stripe.customers.create({
-        email: user.emailAddresses[0].emailAddress,
-      })
-
-      stripeCustomer = await db.stripeCustomer.create({
-        data: {
-          userId,
-          stripeCustomerId: customer.id,
-        },
-      })
-    }
-
-    const stripeSession = await stripe.checkout.sessions.create({
-      customer: stripeCustomer.stripeCustomerId,
-      mode: 'payment',
-      line_items,
-      success_url: `${process.env.REMIX_APP_URL}/courses/${course.id}?success=true`,
-      cancel_url: `${process.env.REMIX_APP_URL}/courses/${course.id}?success=false`,
-      metadata: {
         courseId,
-        userId,
       },
     })
 
-    return json({ url: stripeSession.url }, { status: 200 })
+    return jsonWithSuccess({ ok: true }, { message: 'Enrolled in course 🎉' })
+
+    // const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+    //   {
+    //     quantity: 1,
+    //     price_data: {
+    //       currency: 'USD',
+    //       product_data: {
+    //         name: course.title,
+    //         description: course.description!,
+    //       },
+    //       unit_amount: Math.round(course.price! * 100),
+    //     },
+    //   },
+    // ]
+
+    // let stripeCustomer = await db.stripeCustomer.findUnique({
+    //   where: {
+    //     userId,
+    //   },
+    //   select: {
+    //     stripeCustomerId: true,
+    //   },
+    // })
+
+    // if (!stripeCustomer) {
+    //   const customer = await stripe.customers.create({
+    //     email: user.emailAddresses[0].emailAddress,
+    //   })
+
+    //   stripeCustomer = await db.stripeCustomer.create({
+    //     data: {
+    //       userId,
+    //       stripeCustomerId: customer.id,
+    //     },
+    //   })
+    // }
+
+    // const stripeSession = await stripe.checkout.sessions.create({
+    //   customer: stripeCustomer.stripeCustomerId,
+    //   mode: 'payment',
+    //   line_items,
+    //   success_url: `${process.env.REMIX_APP_URL}/courses/${course.id}?success=true`,
+    //   cancel_url: `${process.env.REMIX_APP_URL}/courses/${course.id}?success=false`,
+    //   metadata: {
+    //     courseId,
+    //     userId,
+    //   },
+    // })
+
+    // return json({ url: stripeSession.url }, { status: 200 })
   } catch (error) {
     console.error('[COURSE_ID_CHECKOUT]', error)
     return json({ error: 'Internal Server Error' }, { status: 500 })

@@ -7,19 +7,27 @@ import {
 } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { FileIcon } from 'lucide-react'
+import { jsonWithSuccess, redirectWithSuccess } from 'remix-toast'
 import { Banner } from '~/components/Banner'
 import { Separator } from '~/components/ui/separator'
+import { getUserEmail } from '~/lib/clerk.server'
+import { db } from '~/lib/db.server'
 import { getChapter } from '~/lib/get-chapter.server'
+import { isWhitelistedUser } from '~/lib/user-role.server'
 import { CourseEnrollButton } from './_components/CourseEnrollButton'
 import { CourseProgressButton } from './_components/CourseProgressButton'
 import { VideoPlayer } from './_components/VideoPlayer'
-import { db } from '~/lib/db.server'
-import { jsonWithSuccess, redirectWithSuccess } from 'remix-toast'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)
 
   if (!userId) {
+    return redirect('/')
+  }
+
+  const userEmail = await getUserEmail(userId)
+
+  if (!userEmail || !isWhitelistedUser(userEmail)) {
     return redirect('/')
   }
 

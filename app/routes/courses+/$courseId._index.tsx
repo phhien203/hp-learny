@@ -1,6 +1,8 @@
 import { getAuth } from '@clerk/remix/ssr.server'
 import { LoaderFunctionArgs, redirect } from '@remix-run/node'
+import { getUserEmail } from '~/lib/clerk.server'
 import { db } from '~/lib/db.server'
+import { isWhitelistedUser } from '~/lib/user-role.server'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)
@@ -12,6 +14,12 @@ export async function loader(args: LoaderFunctionArgs) {
   const { courseId } = args.params
 
   if (!courseId) {
+    return redirect('/')
+  }
+
+  const userEmail = await getUserEmail(userId)
+
+  if (!userEmail || !isWhitelistedUser(userEmail)) {
     return redirect('/')
   }
 

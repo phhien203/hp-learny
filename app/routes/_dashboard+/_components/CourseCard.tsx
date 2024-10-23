@@ -2,7 +2,7 @@ import { Link } from '@remix-run/react'
 import { BookOpenIcon } from 'lucide-react'
 import { CourseProgress } from '~/components/CourseProgress'
 import { IconBadge } from '~/components/IconBadge'
-import { formatPrice } from '~/lib/format'
+import { CourseEnrollButton } from '~/routes/courses+/_components/CourseEnrollButton'
 
 interface CourseCardProps {
   id: string
@@ -24,13 +24,13 @@ export default function CourseCard({
   category,
 }: CourseCardProps) {
   return (
-    <Link to={`/courses/${id}`}>
-      <div className="group h-full overflow-hidden rounded-lg border p-3 transition hover:shadow-sm">
-        <div className="relative aspect-video w-full rounded-md">
-          <img src={imageUrl} alt={title} className="object-cover" />
-        </div>
+    <div className="group h-full overflow-hidden rounded-lg border p-3 transition hover:shadow-sm">
+      <div className="relative aspect-video w-full rounded-md">
+        <img src={imageUrl} alt={title} className="object-cover" />
+      </div>
 
-        <div className="flex flex-col pt-2">
+      <div className="flex flex-col pt-2">
+        <Link to={`/courses/${id}`}>
           <div className="line-clamp-2 text-lg font-medium transition group-hover:text-sky-700 md:text-base">
             {title}
           </div>
@@ -44,20 +44,22 @@ export default function CourseCard({
               </span>
             </div>
           </div>
+        </Link>
 
-          {progress !== null ? (
-            <CourseProgress
-              variant={progress === 100 ? 'success' : 'default'}
-              value={progress}
-              size="sm"
-            />
-          ) : (
-            <p className="text-md font-medium text-slate-700 md:text-sm">
-              {formatPrice(price)}
-            </p>
-          )}
-        </div>
+        {progress !== null ? (
+          <CourseProgress
+            variant={progress === 100 ? 'success' : 'default'}
+            value={progress}
+            size="sm"
+          />
+        ) : (
+          // <p className="text-md font-medium text-slate-700 md:text-sm">
+          //   {formatPrice(price)}
+          // </p>
+
+          <CourseEnrollButton courseId={id} price={price} />
+        )}
       </div>
-    </Link>
+    </div>
   )
 }
