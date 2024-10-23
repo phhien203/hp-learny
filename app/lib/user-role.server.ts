@@ -10,6 +10,11 @@ export async function isTeacher(args: LoaderFunctionArgs) {
 }
 
 export function isWhitelistedUser(email: string) {
+  // eslint-disable-next-line no-extra-boolean-cast
+  if (!Boolean(process.env.ENABLE_WHITELIST)) {
+    return true
+  }
+
   return (process.env.USER_EMAIL_WHITELIST || '')
     .split(',')
     .includes(email.trim())
