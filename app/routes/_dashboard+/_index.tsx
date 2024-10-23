@@ -1,15 +1,14 @@
 import { getAuth } from '@clerk/remix/ssr.server'
 import {
-  json,
   redirect,
   type LoaderFunction,
   type LoaderFunctionArgs,
   type MetaFunction,
 } from '@remix-run/node'
-import { getDashboardCourses } from '~/lib/get-dashboard-courses'
-import CoursesList from './_components/CoursesList'
+// import { getDashboardCourses } from '~/lib/get-dashboard-courses'
 import { useLoaderData } from '@remix-run/react'
 import { CheckCircleIcon, ClockIcon } from 'lucide-react'
+import CoursesList from './_components/CoursesList'
 import { InfoCard } from './_components/InfoCard'
 
 export const meta: MetaFunction = () => {
@@ -23,10 +22,12 @@ export const loader: LoaderFunction = async (args: LoaderFunctionArgs) => {
     return redirect('/sign-in')
   }
 
-  const { completedCourses, inProgressCourses } =
-    await getDashboardCourses(userId)
+  // const { completedCourses, inProgressCourses } =
+  //   await getDashboardCourses(userId)
 
-  return json({ completedCourses, inProgressCourses })
+  // return json({ completedCourses, inProgressCourses })
+
+  return redirect('/search')
 }
 
 export default function Dashboard() {

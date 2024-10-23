@@ -3,11 +3,11 @@ import { useLocation } from 'react-router-dom'
 import { SidebarItem } from './SidebarItem'
 
 const guestRoutes = [
-  {
-    icon: Layout,
-    label: 'Dashboard',
-    href: '/',
-  },
+  // {
+  //   icon: Layout,
+  //   label: 'Dashboard',
+  //   href: '/',
+  // },
   {
     icon: Compass,
     label: 'Browse',
