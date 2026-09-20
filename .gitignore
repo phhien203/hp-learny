@@ -4,4 +4,5 @@ node_modules
 /build
 /.react-router
 .env
+.neon
 /.idea
