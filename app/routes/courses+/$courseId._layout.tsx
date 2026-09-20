@@ -1,7 +1,7 @@
 import { getAuth } from '@clerk/remix/ssr.server'
 import { Chapter, Course, Purchase, UserProgress } from '@prisma/client'
-import { json, LoaderFunctionArgs, redirect } from '@remix-run/node'
-import { Outlet, useLoaderData } from '@remix-run/react'
+import { json, LoaderFunctionArgs, redirect } from 'react-router';
+import { Outlet, useLoaderData } from 'react-router';
 import { db } from '~/lib/db.server'
 import { getProgress } from '~/lib/get-progress.server'
 import CourseNavbar from './_components/CourseNavbar'

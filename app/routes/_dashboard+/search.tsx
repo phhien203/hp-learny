@@ -1,6 +1,6 @@
 import { getAuth } from '@clerk/remix/ssr.server'
-import { json, LoaderFunctionArgs, redirect } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { json, LoaderFunctionArgs, redirect } from 'react-router';
+import { useLoaderData } from 'react-router';
 import { getUserEmail } from '~/lib/clerk.server'
 import { db } from '~/lib/db.server'
 import { getCourses } from '~/lib/get-courses.server'

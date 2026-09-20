@@ -1,4 +1,4 @@
-import { useLocation, useNavigate, useSearchParams } from '@remix-run/react'
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import { SearchIcon } from 'lucide-react'
 import qs from 'query-string'
 import { useEffect, useState } from 'react'

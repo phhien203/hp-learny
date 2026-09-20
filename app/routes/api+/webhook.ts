@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json } from '@remix-run/node'
+import { ActionFunctionArgs, json } from 'react-router';
 import Stripe from 'stripe'
 import { db } from '~/lib/db.server'
 import { stripe } from '~/lib/stripe'

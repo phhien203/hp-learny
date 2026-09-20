@@ -1,4 +1,4 @@
-import { useFetcher } from '@remix-run/react'
+import { useFetcher } from 'react-router';
 import { Trash2Icon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { ConfirmModal } from '~/components/ConfirmModal'

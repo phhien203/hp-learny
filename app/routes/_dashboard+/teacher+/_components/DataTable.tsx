@@ -10,7 +10,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 
-import { Link } from '@remix-run/react'
+import { Link } from 'react-router';
 import { PlusCircleIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '~/components/ui/button'

@@ -1,4 +1,4 @@
-import { useFetcher } from '@remix-run/react'
+import { useFetcher } from 'react-router';
 import { ImageIcon, PencilIcon, PlusCircleIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'

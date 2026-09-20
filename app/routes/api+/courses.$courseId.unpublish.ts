@@ -1,5 +1,5 @@
 import { getAuth } from '@clerk/remix/ssr.server'
-import { ActionFunctionArgs } from '@remix-run/node'
+import { ActionFunctionArgs } from 'react-router';
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 import { db } from '~/lib/db.server'
 
