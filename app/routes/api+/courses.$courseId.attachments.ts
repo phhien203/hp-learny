@@ -1,4 +1,4 @@
-import { getAuth } from '@clerk/remix/ssr.server'
+import { getAuth } from '@clerk/react-router/server'
 import { parseWithZod } from '@conform-to/zod'
 import { ActionFunctionArgs, json } from 'react-router';
 import { jsonWithSuccess } from 'remix-toast'

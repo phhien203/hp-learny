@@ -1,4 +1,4 @@
-import { UserButton } from '@clerk/remix'
+import { UserButton } from '@clerk/react-router'
 import { LogOut } from 'lucide-react'
 import { Link, useLocation } from 'react-router';
 import { Button } from './ui/button'

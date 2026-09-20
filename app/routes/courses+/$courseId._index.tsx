@@ -1,4 +1,4 @@
-import { getAuth } from '@clerk/remix/ssr.server'
+import { getAuth } from '@clerk/react-router/server'
 import { LoaderFunctionArgs, redirect } from 'react-router';
 import { getUserEmail } from '~/lib/clerk.server'
 import { db } from '~/lib/db.server'

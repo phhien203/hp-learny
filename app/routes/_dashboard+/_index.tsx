@@ -1,4 +1,4 @@
-import { getAuth } from '@clerk/remix/ssr.server'
+import { getAuth } from '@clerk/react-router/server'
 import { redirect, type LoaderFunction, type LoaderFunctionArgs, type MetaFunction } from 'react-router';
 // import { getDashboardCourses } from '~/lib/get-dashboard-courses'
 import { useLoaderData } from 'react-router';
