@@ -1,4 +1,4 @@
-import { useFetcher, useRevalidator } from '@remix-run/react'
+import { useFetcher, useRevalidator } from 'react-router';
 import Uppy from '@uppy/core'
 import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'

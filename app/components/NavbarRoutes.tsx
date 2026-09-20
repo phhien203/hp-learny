@@ -1,6 +1,6 @@
 import { UserButton } from '@clerk/remix'
 import { LogOut } from 'lucide-react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router';
 import { Button } from './ui/button'
 
 export function NavbarRoutes({ isTeacher }: { isTeacher: boolean }) {

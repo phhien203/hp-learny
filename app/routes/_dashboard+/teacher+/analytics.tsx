@@ -1,6 +1,6 @@
 import { getAuth } from '@clerk/remix/ssr.server'
-import { json, LoaderFunctionArgs, redirect } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { json, LoaderFunctionArgs, redirect } from 'react-router';
+import { useLoaderData } from 'react-router';
 import { getAnalytics } from '~/lib/get-analytics'
 import { DataCard } from './_components/DataCard'
 import { Chart, ChartProps } from './_components/Chart'

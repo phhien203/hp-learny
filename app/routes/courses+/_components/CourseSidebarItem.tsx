@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from '@remix-run/react'
+import { useLocation, useNavigate } from 'react-router';
 import { CheckCircleIcon, LockIcon, PlayCircleIcon } from 'lucide-react'
 import { cn } from '~/lib/utils'
 

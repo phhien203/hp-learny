@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json } from '@remix-run/node'
+import { ActionFunctionArgs, json } from 'react-router';
 import crypto from 'crypto'
 import { createBunnyVideo } from '~/lib/bunny.server'
 

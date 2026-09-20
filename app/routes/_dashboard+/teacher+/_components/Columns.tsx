@@ -1,5 +1,5 @@
 import { Course } from '@prisma/client'
-import { Link } from '@remix-run/react'
+import { Link } from 'react-router';
 import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDownIcon, MoreHorizontalIcon, PencilIcon } from 'lucide-react'
 import { Badge } from '~/components/ui/badge'

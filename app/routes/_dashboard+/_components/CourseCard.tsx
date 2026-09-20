@@ -1,4 +1,4 @@
-import { Link } from '@remix-run/react'
+import { Link } from 'react-router';
 import { BookOpenIcon } from 'lucide-react'
 import { CourseProgress } from '~/components/CourseProgress'
 import { IconBadge } from '~/components/IconBadge'
@@ -24,11 +24,10 @@ export default function CourseCard({
   category,
 }: CourseCardProps) {
   return (
-    <div className="group h-full overflow-hidden rounded-lg border p-3 transition hover:shadow-sm">
+    (<div className="group h-full overflow-hidden rounded-lg border p-3 transition hover:shadow-sm">
       <div className="relative aspect-video w-full rounded-md">
         <img src={imageUrl} alt={title} className="object-cover" />
       </div>
-
       <div className="flex flex-col pt-2">
         <Link to={`/courses/${id}`}>
           <div className="line-clamp-2 text-lg font-medium transition group-hover:text-sky-700 md:text-base">
@@ -57,9 +56,9 @@ export default function CourseCard({
           //   {formatPrice(price)}
           // </p>
 
-          <CourseEnrollButton courseId={id} price={price} />
+          (<CourseEnrollButton courseId={id} price={price} />)
         )}
       </div>
-    </div>
-  )
+    </div>)
+  );
 }

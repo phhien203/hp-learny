@@ -1,19 +1,7 @@
 import { ClerkApp } from '@clerk/remix'
 import { rootAuthLoader } from '@clerk/remix/ssr.server'
-import type {
-  LinksFunction,
-  LoaderFunction,
-  LoaderFunctionArgs,
-} from '@remix-run/node'
-import {
-  json,
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-  useLoaderData,
-} from '@remix-run/react'
+import type { LinksFunction, LoaderFunction, LoaderFunctionArgs } from 'react-router';
+import { json, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from 'react-router';
 import { useEffect } from 'react'
 import { toast as notify, Toaster } from 'react-hot-toast'
 import { getToast } from 'remix-toast'

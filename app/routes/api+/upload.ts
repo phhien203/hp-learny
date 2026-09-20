@@ -1,5 +1,5 @@
 import { getAuth } from '@clerk/remix/ssr.server'
-import { ActionFunctionArgs, json } from '@remix-run/node'
+import { ActionFunctionArgs, json } from 'react-router';
 
 export async function action(args: ActionFunctionArgs) {
   const { userId } = await getAuth(args)

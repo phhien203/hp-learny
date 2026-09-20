@@ -1,6 +1,6 @@
 import { getAuth } from '@clerk/remix/ssr.server'
 import { parseWithZod } from '@conform-to/zod'
-import { ActionFunctionArgs, json } from '@remix-run/node'
+import { ActionFunctionArgs, json } from 'react-router';
 import { jsonWithSuccess } from 'remix-toast'
 import { attachmentFormSchema } from '~/routes/_dashboard+/teacher+/_components/AttachmentForm'
 import { db } from '~/lib/db.server'

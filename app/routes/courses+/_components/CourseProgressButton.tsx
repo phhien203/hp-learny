@@ -1,4 +1,4 @@
-import { Form } from '@remix-run/react'
+import { Form } from 'react-router';
 import { CheckCircle2Icon, XCircleIcon } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 

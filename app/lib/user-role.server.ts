@@ -1,5 +1,5 @@
 import { getAuth } from '@clerk/remix/ssr.server'
-import { LoaderFunctionArgs } from '@remix-run/node'
+import { LoaderFunctionArgs } from 'react-router';
 
 export async function isTeacher(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)

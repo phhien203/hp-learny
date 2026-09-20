@@ -1,5 +1,5 @@
 import { getAuth } from '@clerk/remix/ssr.server'
-import { LoaderFunctionArgs, redirect } from '@remix-run/node'
+import { LoaderFunctionArgs, redirect } from 'react-router';
 import { getUserEmail } from '~/lib/clerk.server'
 import { db } from '~/lib/db.server'
 import { isWhitelistedUser } from '~/lib/user-role.server'

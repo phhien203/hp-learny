@@ -1,4 +1,4 @@
-import { UploadHandler } from '@remix-run/node'
+import { UploadHandler } from 'react-router';
 import { createClient } from '@supabase/supabase-js'
 
 // I use the ! to mark the env vars as defined but you should use some

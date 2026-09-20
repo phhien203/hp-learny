@@ -1,4 +1,4 @@
-import { useLocation, useNavigate, useSearchParams } from '@remix-run/react'
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import qs from 'query-string'
 import { IconType } from 'react-icons'
 import { cn } from '~/lib/utils'

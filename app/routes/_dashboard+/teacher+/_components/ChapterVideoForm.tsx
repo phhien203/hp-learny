@@ -1,5 +1,5 @@
 import MuxPlayer from '@mux/mux-player-react'
-import { useFetcher } from '@remix-run/react'
+import { useFetcher } from 'react-router';
 import Uppy from '@uppy/core'
 import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'

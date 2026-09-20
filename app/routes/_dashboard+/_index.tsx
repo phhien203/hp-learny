@@ -1,12 +1,7 @@
 import { getAuth } from '@clerk/remix/ssr.server'
-import {
-  redirect,
-  type LoaderFunction,
-  type LoaderFunctionArgs,
-  type MetaFunction,
-} from '@remix-run/node'
+import { redirect, type LoaderFunction, type LoaderFunctionArgs, type MetaFunction } from 'react-router';
 // import { getDashboardCourses } from '~/lib/get-dashboard-courses'
-import { useLoaderData } from '@remix-run/react'
+import { useLoaderData } from 'react-router';
 import { CheckCircleIcon, ClockIcon } from 'lucide-react'
 import CoursesList from './_components/CoursesList'
 import { InfoCard } from './_components/InfoCard'
