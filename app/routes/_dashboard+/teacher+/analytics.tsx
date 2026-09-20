@@ -1,6 +1,5 @@
 import { getAuth } from '@clerk/react-router/server'
-import { data, LoaderFunctionArgs, redirect } from 'react-router';
-import { useLoaderData } from 'react-router';
+import { data, LoaderFunctionArgs, redirect, useLoaderData } from 'react-router'
 import { getAnalytics } from '~/lib/get-analytics'
 import { DataCard } from './_components/DataCard'
 import { Chart, ChartProps } from './_components/Chart'

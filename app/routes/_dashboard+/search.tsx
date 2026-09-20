@@ -1,6 +1,5 @@
 import { getAuth } from '@clerk/react-router/server'
-import { data, LoaderFunctionArgs, redirect } from 'react-router';
-import { useLoaderData } from 'react-router';
+import { data, LoaderFunctionArgs, redirect, useLoaderData } from 'react-router'
 import { getUserEmail } from '~/lib/clerk.server'
 import { db } from '~/lib/db.server'
 import { getCourses } from '~/lib/get-courses.server'

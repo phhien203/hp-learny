@@ -11,13 +11,8 @@ interface VideoPlayerProps {
 }
 
 export function VideoPlayer({
-  chapterId,
-  title,
-  courseId,
-  nextChapterId,
   videoUrl,
   isLocked,
-  completeOnEnd,
 }: VideoPlayerProps) {
   return (
     <div className="relative aspect-video">
