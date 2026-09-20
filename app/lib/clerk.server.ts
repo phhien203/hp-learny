@@ -1,4 +1,4 @@
-import { createClerkClient, type User } from '@clerk/remix/api.server'
+import { createClerkClient, type User } from '@clerk/react-router/api.server'
 
 export async function getUser(userId: string): Promise<User | null> {
   return await createClerkClient({

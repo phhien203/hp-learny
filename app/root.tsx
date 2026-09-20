@@ -1,14 +1,14 @@
-import { ClerkApp } from '@clerk/remix'
-import { rootAuthLoader } from '@clerk/remix/ssr.server'
-import type { LinksFunction, LoaderFunction, LoaderFunctionArgs } from 'react-router';
-import { json, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from 'react-router';
+import { ClerkProvider } from '@clerk/react-router'
+import { clerkMiddleware, rootAuthLoader } from '@clerk/react-router/server'
+import type { Route } from './+types/root'
+import { data, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 import { useEffect } from 'react'
 import { toast as notify, Toaster } from 'react-hot-toast'
 import { getToast } from 'remix-toast'
 import './tailwind.css'
 // import 'quill/dist/quill.snow.css'
 
-export const links: LinksFunction = () => [
+export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
     rel: 'preconnect',
@@ -21,26 +21,16 @@ export const links: LinksFunction = () => [
   },
 ]
 
-export const loader: LoaderFunction = (args: LoaderFunctionArgs) => {
+export const middleware: Route.MiddlewareFunction[] = [clerkMiddleware()]
+
+export function loader(args: Route.LoaderArgs) {
   return rootAuthLoader(args, async () => {
     const { toast, headers } = await getToast(args.request)
-    return json({ toast }, { headers })
+    return data({ toast }, { headers })
   })
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { toast } = useLoaderData<typeof loader>()
-
-  useEffect(() => {
-    if (toast) {
-      if (toast.type === 'success') {
-        notify.success(toast.message)
-      } else if (toast.type === 'error') {
-        notify.error(toast.message)
-      }
-    }
-  }, [toast])
-
   return (
     <html lang="en">
       <head>
@@ -59,8 +49,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
   )
 }
 
-function App() {
-  return <Outlet />
-}
+export default function App({ loaderData }: Route.ComponentProps) {
+  const { toast } = loaderData
 
-export default ClerkApp(App)
+  useEffect(() => {
+    if (toast?.type === 'success') {
+      notify.success(toast.message)
+    } else if (toast?.type === 'error') {
+      notify.error(toast.message)
+    }
+  }, [toast])
+
+  return (
+    <ClerkProvider loaderData={loaderData}>
+      <Outlet />
+    </ClerkProvider>
+  )
+}

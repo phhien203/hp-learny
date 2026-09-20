@@ -1,4 +1,4 @@
-import { getAuth } from '@clerk/remix/ssr.server'
+import { getAuth } from '@clerk/react-router/server'
 import { Chapter, Course, Purchase, UserProgress } from '@prisma/client'
 import { json, LoaderFunctionArgs, redirect } from 'react-router';
 import { Outlet, useLoaderData } from 'react-router';

@@ -12,7 +12,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@clerk/remix": "^4.2.35",
+    "@clerk/react-router": "^3.6.24",
     "@conform-to/react": "^1.2.2",
     "@conform-to/zod": "^1.2.2",
     "@hello-pangea/dnd": "^17.0.0",

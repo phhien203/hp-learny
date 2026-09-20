@@ -1,4 +1,4 @@
-import { getAuth } from '@clerk/remix/ssr.server'
+import { getAuth } from '@clerk/react-router/server'
 import { LoaderFunctionArgs } from 'react-router';
 
 export async function isTeacher(args: LoaderFunctionArgs) {
