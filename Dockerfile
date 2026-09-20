@@ -25,8 +25,10 @@ COPY package-lock.json package.json ./
 RUN npm ci --include=dev
 
 # Generate Prisma Client
-COPY prisma .
-RUN npx prisma generate
+COPY prisma ./prisma/
+RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" \
+    DATABASE_URL_UNPOOLED="postgresql://build:build@localhost:5432/build" \
+    npx prisma generate
 
 # Copy application code
 COPY . .
@@ -43,32 +45,17 @@ FROM base
 
 # Install packages needed for deployment
 RUN apt-get update -qq && \
-  apt-get install --no-install-recommends -y openssl sqlite3 fuse3 ca-certificates && \
+  apt-get install --no-install-recommends -y openssl ca-certificates && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy built application
 COPY --from=build /app /app
 
-# Setup sqlite3 on a separate volume
-RUN mkdir -p /data
-VOLUME /data
-
-# add shortcut for connecting to database CLI
-RUN echo "#!/bin/sh\nset -x\nsqlite3 \$DATABASE_URL" > /usr/local/bin/database-cli && chmod +x /usr/local/bin/database-cli
-
 # Entrypoint prepares the database.
 ENTRYPOINT [ "/app/docker-entrypoint.js" ]
 
-ENV LITEFS_DIR="/litefs"
-ENV DATABASE_FILENAME="$LITEFS_DIR/sqlite.db"
-ENV DATABASE_URL="file:$DATABASE_FILENAME"
 ENV INTERNAL_PORT="8080"
-ENV PORT="8081"
-# ENV DATABASE_URL="file:///data/sqlite.db"
-# ENV PORT="8080"
+ENV PORT="8080"
 ENV NODE_ENV="production"
 
-COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
-ADD litefs.yml /etc/litefs.yml
-
-CMD [ "litefs", "mount", "--", "npm", "run", "start" ]
+CMD [ "npm", "run", "start" ]
