@@ -1,3 +1,5 @@
+import { eq, inArray } from 'drizzle-orm'
+import { purchases as purchasesTable, courses } from '~/lib/schema'
 import type { Course, Purchase } from './schema'
 import { db } from './db.server'
 
@@ -23,15 +25,15 @@ const groupByCourse = (purchases: PurchaseWithCourse[]) => {
 
 export async function getAnalytics(userId: string) {
   try {
-    const purchases = await db.purchase.findMany({
-      where: {
-        course: {
-          userId,
-        },
-      },
-      include: {
-        course: true,
-      },
+    const purchases = await db.query.purchases.findMany({
+      where: inArray(
+        purchasesTable.courseId,
+        db
+          .select({ id: courses.id })
+          .from(courses)
+          .where(eq(courses.userId, userId)),
+      ),
+      with: { course: true },
     })
     const groupedEarnings = groupByCourse(purchases)
 

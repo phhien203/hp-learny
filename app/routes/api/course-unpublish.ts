@@ -1,5 +1,7 @@
+import { and, eq } from 'drizzle-orm'
+import { courses,  } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
-import { ActionFunctionArgs } from 'react-router';
+import { ActionFunctionArgs } from 'react-router'
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 import { db } from '~/lib/db.server'
 
@@ -25,14 +27,9 @@ export async function action(args: ActionFunctionArgs) {
       )
     }
 
-    const ownCourse = await db.course.findUnique({
-      where: {
-        id: courseId,
-        userId: userId,
-      },
-      include: {
-        chapters: true,
-      },
+    const ownCourse = await db.query.courses.findFirst({
+      where: and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)),
+      with: { chapters: true },
     })
 
     if (!ownCourse) {
@@ -43,12 +40,15 @@ export async function action(args: ActionFunctionArgs) {
       )
     }
 
-    const unPublishedCourse = await db.course.update({
-      where: { id: courseId, userId: userId },
-      data: {
-        isPublished: false,
-      },
-    })
+    const unPublishedCourse = (
+      await db
+        .update(courses)
+        .set({
+          isPublished: false,
+        })
+        .where(and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)))
+        .returning()
+    )[0]
 
     return jsonWithSuccess(
       { course: unPublishedCourse },

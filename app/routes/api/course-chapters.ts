@@ -1,6 +1,8 @@
+import { and, desc, eq } from 'drizzle-orm'
+import { courses, chapters } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
 import { parseWithZod } from '@conform-to/zod'
-import { ActionFunctionArgs, data } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router'
 import { jsonWithError, redirectWithSuccess } from 'remix-toast'
 import { chaptersFormSchema } from '~/routes/dashboard/teacher/components/ChaptersForm'
 import { db } from '~/lib/db.server'
@@ -28,35 +30,31 @@ export async function action(args: ActionFunctionArgs) {
 
     const { title } = submission.value
 
-    const courseOwner = await db.course.findUnique({
-      where: {
-        id: courseId,
-        userId,
-      },
+    const courseOwner = await db.query.courses.findFirst({
+      where: and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)),
     })
 
     if (!courseOwner) {
       return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const lastChapter = await db.chapter.findFirst({
-      where: {
-        courseId: courseOwner.id,
-      },
-      orderBy: {
-        position: 'desc',
-      },
+    const lastChapter = await db.query.chapters.findFirst({
+      where: eq(chapters.courseId, courseOwner.id ?? ''),
+      orderBy: [desc(chapters.position)],
     })
 
     const position = lastChapter ? lastChapter.position + 1 : 1
 
-    const chapter = await db.chapter.create({
-      data: {
-        title,
-        courseId,
-        position,
-      },
-    })
+    const chapter = (
+      await db
+        .insert(chapters)
+        .values({
+          title,
+          courseId,
+          position,
+        })
+        .returning()
+    )[0]
 
     return redirectWithSuccess(
       `/teacher/courses/${courseId}/chapters/${chapter.id}`,

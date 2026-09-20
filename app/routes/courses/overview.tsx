@@ -1,5 +1,7 @@
+import { asc, eq } from 'drizzle-orm'
+import { courses, chapters } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
-import { LoaderFunctionArgs, redirect } from 'react-router';
+import { LoaderFunctionArgs, redirect } from 'react-router'
 import { getUserEmail } from '~/lib/clerk.server'
 import { db } from '~/lib/db.server'
 import { isWhitelistedUser } from '~/lib/user-role.server'
@@ -23,18 +25,12 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect('/')
   }
 
-  const course = await db.course.findUnique({
-    where: {
-      id: courseId,
-    },
-    include: {
+  const course = await db.query.courses.findFirst({
+    where: eq(courses.id, courseId ?? ''),
+    with: {
       chapters: {
-        where: {
-          isPublished: true,
-        },
-        orderBy: {
-          position: 'asc',
-        },
+        where: eq(chapters.isPublished, true),
+        orderBy: [asc(chapters.position)],
       },
     },
   })

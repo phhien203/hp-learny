@@ -1,5 +1,7 @@
+import { and, eq } from 'drizzle-orm'
+import { courses, purchases } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
-import { ActionFunctionArgs, data } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router'
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 import { getUserEmail } from '~/lib/clerk.server'
 import { db } from '~/lib/db.server'
@@ -25,24 +27,19 @@ export async function action(args: ActionFunctionArgs) {
       return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const course = await db.course.findUnique({
-      where: {
-        id: courseId,
-        isPublished: true,
-      },
+    const course = await db.query.courses.findFirst({
+      where: and(eq(courses.id, courseId ?? ''), eq(courses.isPublished, true)),
     })
 
     if (!course) {
       return data({ error: 'Course not found' }, { status: 404 })
     }
 
-    const purchase = await db.purchase.findUnique({
-      where: {
-        userId_courseId: {
-          userId,
-          courseId,
-        },
-      },
+    const purchase = await db.query.purchases.findFirst({
+      where: and(
+        eq(purchases.userId, userId),
+        eq(purchases.courseId, courseId ?? ''),
+      ),
     })
 
     if (purchase) {
@@ -53,64 +50,17 @@ export async function action(args: ActionFunctionArgs) {
       )
     }
 
-    await db.purchase.create({
-      data: {
-        userId,
-        courseId,
-      },
-    })
+    await (
+      await db
+        .insert(purchases)
+        .values({
+          userId,
+          courseId,
+        })
+        .returning()
+    )[0]
 
     return jsonWithSuccess({ ok: true }, { message: 'Enrolled in course 🎉' })
-
-    // const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [
-    //   {
-    //     quantity: 1,
-    //     price_data: {
-    //       currency: 'USD',
-    //       product_data: {
-    //         name: course.title,
-    //         description: course.description!,
-    //       },
-    //       unit_amount: Math.round(course.price! * 100),
-    //     },
-    //   },
-    // ]
-
-    // let stripeCustomer = await db.stripeCustomer.findUnique({
-    //   where: {
-    //     userId,
-    //   },
-    //   select: {
-    //     stripeCustomerId: true,
-    //   },
-    // })
-
-    // if (!stripeCustomer) {
-    //   const customer = await stripe.customers.create({
-    //     email: user.emailAddresses[0].emailAddress,
-    //   })
-
-    //   stripeCustomer = await db.stripeCustomer.create({
-    //     data: {
-    //       userId,
-    //       stripeCustomerId: customer.id,
-    //     },
-    //   })
-    // }
-
-    // const stripeSession = await stripe.checkout.sessions.create({
-    //   customer: stripeCustomer.stripeCustomerId,
-    //   mode: 'payment',
-    //   line_items,
-    //   success_url: `${process.env.REMIX_APP_URL}/courses/${course.id}?success=true`,
-    //   cancel_url: `${process.env.REMIX_APP_URL}/courses/${course.id}?success=false`,
-    //   metadata: {
-    //     courseId,
-    //     userId,
-    //   },
-    // })
-
-    // return data({ url: stripeSession.url }, { status: 200 })
   } catch (error) {
     console.error('[COURSE_ID_CHECKOUT]', error)
     return data({ error: 'Internal Server Error' }, { status: 500 })

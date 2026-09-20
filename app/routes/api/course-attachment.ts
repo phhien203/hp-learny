@@ -1,5 +1,7 @@
+import { and, eq } from 'drizzle-orm'
+import { courses, attachments } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
-import { ActionFunctionArgs, data } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router'
 import { jsonWithSuccess } from 'remix-toast'
 import { db } from '~/lib/db.server'
 
@@ -20,23 +22,25 @@ export async function action(args: ActionFunctionArgs) {
     return data({ error: 'Attachment id is required' }, { status: 400 })
   }
 
-  const courseOwner = await db.course.findUnique({
-    where: {
-      id: courseId,
-      userId,
-    },
+  const courseOwner = await db.query.courses.findFirst({
+    where: and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)),
   })
 
   if (!courseOwner) {
     return data({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const attachment = await db.attachment.delete({
-    where: {
-      id: attachmentId,
-      courseId,
-    },
-  })
+  const attachment = (
+    await db
+      .delete(attachments)
+      .where(
+        and(
+          eq(attachments.id, attachmentId ?? ''),
+          eq(attachments.courseId, courseId ?? ''),
+        ),
+      )
+      .returning()
+  )[0]
 
   return jsonWithSuccess(
     { ok: true, attachment },

@@ -1,3 +1,5 @@
+import { and, asc, eq } from 'drizzle-orm'
+import { courses, chapters, userProgress, purchases } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
 import type { Chapter, Course, Purchase, UserProgress } from '~/lib/schema'
 import {
@@ -25,25 +27,13 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect('/')
   }
 
-  const course = await db.course.findUnique({
-    where: {
-      id: courseId,
-    },
-    include: {
+  const course = await db.query.courses.findFirst({
+    where: eq(courses.id, courseId ?? ''),
+    with: {
       chapters: {
-        where: {
-          isPublished: true,
-        },
-        include: {
-          userProgress: {
-            where: {
-              userId,
-            },
-          },
-        },
-        orderBy: {
-          position: 'asc',
-        },
+        where: eq(chapters.isPublished, true),
+        orderBy: [asc(chapters.position)],
+        with: { userProgress: { where: eq(userProgress.userId, userId) } },
       },
     },
   })
@@ -54,13 +44,11 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const progressCount = await getProgress(userId, course.id)
 
-  const purchase = await db.purchase.findUnique({
-    where: {
-      userId_courseId: {
-        userId,
-        courseId: course.id,
-      },
-    },
+  const purchase = await db.query.purchases.findFirst({
+    where: and(
+      eq(purchases.userId, userId),
+      eq(purchases.courseId, course.id ?? ''),
+    ),
   })
 
   return data({ course, progressCount, purchase })

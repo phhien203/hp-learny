@@ -1,3 +1,5 @@
+import { and, desc, eq, like } from 'drizzle-orm'
+import { chapters, courses as coursesTable, purchases } from '~/lib/schema'
 import type { Category, Course } from './schema'
 import { db } from './db.server'
 import { getProgress } from './get-progress.server'
@@ -20,26 +22,25 @@ export async function getCourses({
   categoryId,
 }: GetCoursesArgs): Promise<CourseWithProgressWithCategory[]> {
   try {
-    const courses = await db.course.findMany({
-      where: {
-        isPublished: true,
-        title: {
-          contains: title,
-        },
-        categoryId,
-      },
-      include: {
+    const courses = await db.query.courses.findMany({
+      where: and(
+        eq(coursesTable.isPublished, true),
+        title
+          ? like(
+              coursesTable.title,
+              '%' + title.replace(/[\\%_]/g, '\\$&') + '%',
+            )
+          : undefined,
+        categoryId ? eq(coursesTable.categoryId, categoryId) : undefined,
+      ),
+      orderBy: [desc(coursesTable.createdAt)],
+      with: {
         category: true,
         chapters: {
-          where: { isPublished: true },
-          select: { id: true },
+          where: eq(chapters.isPublished, true),
+          columns: { id: true },
         },
-        purchases: {
-          where: { userId },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
+        purchases: { where: eq(purchases.userId, userId) },
       },
     })
 

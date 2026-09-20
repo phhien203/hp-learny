@@ -1,6 +1,8 @@
+import { and, eq } from 'drizzle-orm'
+import { courses, chapters } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
 import { db } from '~/lib/db.server'
-import { ActionFunctionArgs, data } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router'
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 
 export async function action(args: ActionFunctionArgs) {
@@ -20,22 +22,19 @@ export async function action(args: ActionFunctionArgs) {
       )
     }
 
-    const courseOwner = await db.course.findUnique({
-      where: {
-        id: courseId,
-        userId: userId,
-      },
+    const courseOwner = await db.query.courses.findFirst({
+      where: and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)),
     })
 
     if (!courseOwner) {
       return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const chapter = await db.chapter.findUnique({
-      where: {
-        id: chapterId,
-        courseId: courseId,
-      },
+    const chapter = await db.query.chapters.findFirst({
+      where: and(
+        eq(chapters.id, chapterId ?? ''),
+        eq(chapters.courseId, courseId ?? ''),
+      ),
     })
 
     if (
@@ -51,15 +50,20 @@ export async function action(args: ActionFunctionArgs) {
       )
     }
 
-    const publishedChapter = await db.chapter.update({
-      where: {
-        id: chapterId,
-        courseId: courseId,
-      },
-      data: {
-        isPublished: true,
-      },
-    })
+    const publishedChapter = (
+      await db
+        .update(chapters)
+        .set({
+          isPublished: true,
+        })
+        .where(
+          and(
+            eq(chapters.id, chapterId ?? ''),
+            eq(chapters.courseId, courseId ?? ''),
+          ),
+        )
+        .returning()
+    )[0]
 
     return jsonWithSuccess(
       { chapter: publishedChapter },

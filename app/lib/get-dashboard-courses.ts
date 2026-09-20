@@ -1,9 +1,11 @@
+import { eq } from 'drizzle-orm'
+import { chapters, purchases } from '~/lib/schema'
 import type { Category, Course, Chapter } from './schema'
 import { db } from './db.server'
 import { getProgress } from './get-progress.server'
 
 type CourseWithProgressWithCategory = Course & {
-  category: Category
+  category: Category | null
   chapters: Chapter[]
   progress: number | null
 }
@@ -17,32 +19,25 @@ export async function getDashboardCourses(
   userId: string,
 ): Promise<DashboardCourses> {
   try {
-    const purchasedCourses = await db.purchase.findMany({
-      where: {
-        userId,
-      },
-      select: {
+    const purchasedCourses = await db.query.purchases.findMany({
+      where: eq(purchases.userId, userId),
+      columns: {},
+      with: {
         course: {
-          include: {
+          with: {
             category: true,
-            chapters: {
-              where: {
-                isPublished: true,
-              },
-            },
+            chapters: { where: eq(chapters.isPublished, true) },
           },
         },
       },
     })
 
-    const courses = purchasedCourses.map(
-      (purchase: { course: CourseWithProgressWithCategory }) => purchase.course,
-    ) as CourseWithProgressWithCategory[]
-
-    for (const course of courses) {
-      const progress = await getProgress(userId, course.id)
-      course['progress'] = progress
-    }
+    const courses: CourseWithProgressWithCategory[] = await Promise.all(
+      purchasedCourses.map(async ({ course }) => ({
+        ...course,
+        progress: await getProgress(userId, course.id),
+      })),
+    )
 
     const completedCourses = courses.filter((course) => course.progress === 100)
     const inProgressCourses = courses.filter(

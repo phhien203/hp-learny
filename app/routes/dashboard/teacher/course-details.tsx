@@ -1,3 +1,10 @@
+import { and, asc, desc, eq } from 'drizzle-orm'
+import {
+  courses,
+  attachments,
+  chapters,
+  categories as categoriesTable,
+} from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
 import { parseWithZod } from '@conform-to/zod'
 import {
@@ -47,21 +54,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect('/search')
   }
 
-  const course = await db.course.findUnique({
-    where: {
-      id: args.params.courseId,
-    },
-    include: {
-      attachments: {
-        orderBy: {
-          createdAt: 'desc',
-        },
-      },
-      chapters: {
-        orderBy: {
-          position: 'asc',
-        },
-      },
+  const course = await db.query.courses.findFirst({
+    where: eq(courses.id, args.params.courseId ?? ''),
+    with: {
+      attachments: { orderBy: [desc(attachments.createdAt)] },
+      chapters: { orderBy: [asc(chapters.position)] },
     },
   })
 
@@ -69,10 +66,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect('/teacher/courses')
   }
 
-  const categories = await db.category.findMany({
-    orderBy: {
-      name: 'asc',
-    },
+  const categories = await db.query.categories.findMany({
+    orderBy: [asc(categoriesTable.name)],
   })
 
   return data({ course, categories })
@@ -186,8 +181,8 @@ export async function action(args: ActionFunctionArgs) {
     )
   }
 
-  const ownCourse = await db.course.findUnique({
-    where: { id: courseId, userId },
+  const ownCourse = await db.query.courses.findFirst({
+    where: and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)),
   })
 
   if (!ownCourse) {
@@ -199,9 +194,12 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   if (args.request.method === 'DELETE') {
-    await db.course.delete({
-      where: { id: courseId, userId },
-    })
+    await (
+      await db
+        .delete(courses)
+        .where(and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)))
+        .returning()
+    )[0]
 
     return redirectWithSuccess('/teacher/courses', {
       message: 'Course deleted successfully! 🎉',
@@ -226,13 +224,18 @@ export async function action(args: ActionFunctionArgs) {
     }
 
     if (submission?.status === 'success') {
-      await db.course.update({
-        where: {
-          id: args.params.courseId,
-          userId,
-        },
-        data: submission.value,
-      })
+      await (
+        await db
+          .update(courses)
+          .set(submission.value)
+          .where(
+            and(
+              eq(courses.id, args.params.courseId ?? ''),
+              eq(courses.userId, userId),
+            ),
+          )
+          .returning()
+      )[0]
 
       return jsonWithSuccess(
         { ok: true },

@@ -1,6 +1,8 @@
+import { and, eq } from 'drizzle-orm'
+import { courses, chapters, userProgress } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
 import { db } from '~/lib/db.server'
-import { ActionFunctionArgs, data } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router'
 import {
   jsonWithError,
   jsonWithSuccess,
@@ -24,21 +26,19 @@ export async function action(args: ActionFunctionArgs) {
       )
     }
 
-    const course = await db.course.findUnique({
-      where: {
-        id: courseId,
-      },
+    const course = await db.query.courses.findFirst({
+      where: eq(courses.id, courseId ?? ''),
     })
 
     if (!course) {
       return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const chapter = await db.chapter.findUnique({
-      where: {
-        id: chapterId,
-        courseId: courseId,
-      },
+    const chapter = await db.query.chapters.findFirst({
+      where: and(
+        eq(chapters.id, chapterId ?? ''),
+        eq(chapters.courseId, courseId ?? ''),
+      ),
     })
 
     if (!chapter) {
@@ -48,23 +48,25 @@ export async function action(args: ActionFunctionArgs) {
     const formData = await args.request.formData()
     const isCompleted = formData.get('isCompleted') === 'true'
     const nextChapterId = formData.get('nextChapterId')
-
-    await db.userProgress.upsert({
-      where: {
-        userId_chapterId: {
+    await (
+      await db
+        .insert(userProgress)
+        .values({
           userId: userId,
           chapterId: chapterId,
-        },
-      },
-      update: {
-        isCompleted: isCompleted,
-      },
-      create: {
-        userId: userId,
-        chapterId: chapterId,
-        isCompleted: isCompleted,
-      },
-    })
+          isCompleted: isCompleted,
+        })
+        .onConflictDoUpdate({
+          target: [userProgress.userId, userProgress.chapterId],
+          set: {
+            ...{
+              isCompleted: isCompleted,
+            },
+            updatedAt: new Date(),
+          },
+        })
+        .returning()
+    )[0]
 
     if (isCompleted && nextChapterId) {
       return redirectWithSuccess(

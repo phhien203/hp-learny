@@ -1,5 +1,7 @@
+import { and, eq } from 'drizzle-orm'
+import { courses, chapters } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
-import { ActionFunctionArgs, data } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router'
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 import { db } from '~/lib/db.server'
 
@@ -28,11 +30,8 @@ export async function action(args: ActionFunctionArgs) {
       return data({ error: 'List is required' }, { status: 400 })
     }
 
-    const ownerCourse = await db.course.findUnique({
-      where: {
-        id: courseId,
-        userId,
-      },
+    const ownerCourse = await db.query.courses.findFirst({
+      where: and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)),
     })
 
     if (!ownerCourse) {
@@ -40,14 +39,15 @@ export async function action(args: ActionFunctionArgs) {
     }
 
     for (const item of listData) {
-      await db.chapter.update({
-        where: {
-          id: item.id,
-        },
-        data: {
-          position: item.position,
-        },
-      })
+      await (
+        await db
+          .update(chapters)
+          .set({
+            position: item.position,
+          })
+          .where(eq(chapters.id, item.id ?? ''))
+          .returning()
+      )[0]
     }
 
     return jsonWithSuccess({ ok: true }, { message: 'Chapters reordered' })
