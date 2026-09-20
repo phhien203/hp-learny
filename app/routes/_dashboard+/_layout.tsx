@@ -1,5 +1,4 @@
-import { data, LoaderFunctionArgs } from 'react-router';
-import { Outlet, useLoaderData } from 'react-router';
+import { data, LoaderFunctionArgs, Outlet, useLoaderData } from 'react-router'
 import { isTeacher } from '~/lib/user-role.server'
 import { Navbar } from './_components/Navbar'
 import { Sidebar } from './_components/Sidebar'

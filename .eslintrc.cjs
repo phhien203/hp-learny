@@ -71,11 +71,14 @@ module.exports = {
         'plugin:import/recommended',
         'plugin:import/typescript',
       ],
+      rules: {
+        'react/prop-types': 'off',
+      },
     },
 
     // Node
     {
-      files: ['.eslintrc.cjs'],
+      files: ['.eslintrc.cjs', 'docker-entrypoint.js'],
       env: {
         node: true,
       },

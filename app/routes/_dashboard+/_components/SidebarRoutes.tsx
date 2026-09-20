@@ -1,4 +1,4 @@
-import { BarChart, Compass, Layout, List } from 'lucide-react'
+import { BarChart, Compass, List } from 'lucide-react'
 import { useLocation } from 'react-router';
 import { SidebarItem } from './SidebarItem'
 
