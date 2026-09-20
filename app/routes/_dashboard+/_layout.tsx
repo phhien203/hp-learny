@@ -1,4 +1,4 @@
-import { json, LoaderFunctionArgs } from 'react-router';
+import { data, LoaderFunctionArgs } from 'react-router';
 import { Outlet, useLoaderData } from 'react-router';
 import { isTeacher } from '~/lib/user-role.server'
 import { Navbar } from './_components/Navbar'
@@ -7,7 +7,7 @@ import { Sidebar } from './_components/Sidebar'
 export async function loader(args: LoaderFunctionArgs) {
   const checkTeacher = await isTeacher(args)
 
-  return json({ isTeacher: checkTeacher })
+  return data({ isTeacher: checkTeacher })
 }
 
 export default function DashboardLayout() {

@@ -1,5 +1,5 @@
 import { getAuth } from '@clerk/react-router/server'
-import { json, LoaderFunctionArgs, redirect } from 'react-router';
+import { data, LoaderFunctionArgs, redirect } from 'react-router';
 import { useLoaderData } from 'react-router';
 import { db } from '~/lib/db.server'
 import { isTeacher } from '~/lib/user-role.server'
@@ -23,7 +23,7 @@ export async function loader(args: LoaderFunctionArgs) {
     where: { userId },
   })
 
-  return json({ courses })
+  return data({ courses })
 }
 
 export default function TeacherCoursesPage() {

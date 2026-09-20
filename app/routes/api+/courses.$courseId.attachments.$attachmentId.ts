@@ -1,5 +1,5 @@
 import { getAuth } from '@clerk/react-router/server'
-import { ActionFunctionArgs, json } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router';
 import { jsonWithSuccess } from 'remix-toast'
 import { db } from '~/lib/db.server'
 
@@ -7,17 +7,17 @@ export async function action(args: ActionFunctionArgs) {
   const { userId } = await getAuth(args)
 
   if (!userId) {
-    return json({ error: 'Unauthorized' }, { status: 401 })
+    return data({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { courseId, attachmentId } = args.params
 
   if (!courseId) {
-    return json({ error: 'Course id is required' }, { status: 400 })
+    return data({ error: 'Course id is required' }, { status: 400 })
   }
 
   if (!attachmentId) {
-    return json({ error: 'Attachment id is required' }, { status: 400 })
+    return data({ error: 'Attachment id is required' }, { status: 400 })
   }
 
   const courseOwner = await db.course.findUnique({
@@ -28,7 +28,7 @@ export async function action(args: ActionFunctionArgs) {
   })
 
   if (!courseOwner) {
-    return json({ error: 'Unauthorized' }, { status: 401 })
+    return data({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const attachment = await db.attachment.delete({

@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router';
 import Stripe from 'stripe'
 import { db } from '~/lib/db.server'
 import { stripe } from '~/lib/stripe'
@@ -18,7 +18,7 @@ export async function action(args: ActionFunctionArgs) {
     )
   } catch (error) {
     console.error('Webhook signature verification failed', error)
-    return json(
+    return data(
       {
         error: 'Webhook signature verification failed',
       },
@@ -33,7 +33,7 @@ export async function action(args: ActionFunctionArgs) {
   if (event.type === 'checkout.session.completed') {
     if (!userId || !courseId) {
       console.error('User ID or course ID is missing')
-      return json({ error: 'User ID or course ID is missing' }, { status: 400 })
+      return data({ error: 'User ID or course ID is missing' }, { status: 400 })
     }
 
     await db.purchase.create({
@@ -44,8 +44,8 @@ export async function action(args: ActionFunctionArgs) {
     })
   } else {
     console.error('Unsupported event type', event.type)
-    return json({ error: 'Unsupported event type' }, { status: 200 })
+    return data({ error: 'Unsupported event type' }, { status: 200 })
   }
 
-  return json({ message: 'Webhook received' }, { status: 200 })
+  return data({ message: 'Webhook received' }, { status: 200 })
 }

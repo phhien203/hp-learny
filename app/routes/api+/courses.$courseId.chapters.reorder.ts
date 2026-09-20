@@ -1,5 +1,5 @@
 import { getAuth } from '@clerk/react-router/server'
-import { ActionFunctionArgs, json } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router';
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 import { db } from '~/lib/db.server'
 
@@ -8,13 +8,13 @@ export async function action(args: ActionFunctionArgs) {
     const { userId } = await getAuth(args)
 
     if (!userId) {
-      return json({ error: 'Unauthorized' }, { status: 401 })
+      return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { courseId } = args.params
 
     if (!courseId) {
-      return json({ error: 'Course id is required' }, { status: 400 })
+      return data({ error: 'Course id is required' }, { status: 400 })
     }
 
     const formData = await args.request.formData()
@@ -25,7 +25,7 @@ export async function action(args: ActionFunctionArgs) {
     }[]
 
     if (!listData || !Array.isArray(listData)) {
-      return json({ error: 'List is required' }, { status: 400 })
+      return data({ error: 'List is required' }, { status: 400 })
     }
 
     const ownerCourse = await db.course.findUnique({
@@ -36,7 +36,7 @@ export async function action(args: ActionFunctionArgs) {
     })
 
     if (!ownerCourse) {
-      return json({ error: 'Unauthorized' }, { status: 401 })
+      return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
     for (const item of listData) {

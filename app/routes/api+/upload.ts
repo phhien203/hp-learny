@@ -1,18 +1,18 @@
 import { getAuth } from '@clerk/react-router/server'
-import { ActionFunctionArgs, json } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router';
 
 export async function action(args: ActionFunctionArgs) {
   const { userId } = await getAuth(args)
 
   if (!userId) {
-    return json({ error: 'Unauthorized' }, { status: 401 })
+    return data({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const formData = await args.request.formData()
   const file = formData.get('file') as File
 
   if (!file) {
-    return json({ error: 'No file uploaded' }, { status: 400 })
+    return data({ error: 'No file uploaded' }, { status: 400 })
   }
 
   const fileName = file.name
@@ -24,15 +24,16 @@ export async function action(args: ActionFunctionArgs) {
   }
   const fileStream = file.stream()
 
-  const response = await fetch(url, {
+  const uploadRequest: RequestInit & { duplex: 'half' } = {
     method: 'PUT',
     headers: headers as Record<string, string>,
     body: fileStream,
     duplex: 'half',
-  })
+  }
+  const response = await fetch(url, uploadRequest)
 
   if (response.ok) {
-    return json(
+    return data(
       {
         success: true,
         fileName: fileName,
@@ -42,7 +43,7 @@ export async function action(args: ActionFunctionArgs) {
     )
   } else {
     const errorText = await response.text()
-    return json(
+    return data(
       { success: false, error: errorText },
       { status: response.status },
     )

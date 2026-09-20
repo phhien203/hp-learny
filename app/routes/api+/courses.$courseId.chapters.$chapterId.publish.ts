@@ -1,6 +1,6 @@
 import { getAuth } from '@clerk/react-router/server'
 import { db } from '~/lib/db.server'
-import { ActionFunctionArgs, json } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router';
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 
 export async function action(args: ActionFunctionArgs) {
@@ -8,13 +8,13 @@ export async function action(args: ActionFunctionArgs) {
     const { userId } = await getAuth(args)
 
     if (!userId) {
-      return json({ error: 'Unauthorized' }, { status: 401 })
+      return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { courseId, chapterId } = args.params
 
     if (!courseId || !chapterId) {
-      return json(
+      return data(
         { error: 'Course ID and chapter ID are required' },
         { status: 400 },
       )
@@ -28,7 +28,7 @@ export async function action(args: ActionFunctionArgs) {
     })
 
     if (!courseOwner) {
-      return json({ error: 'Unauthorized' }, { status: 401 })
+      return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const chapter = await db.chapter.findUnique({

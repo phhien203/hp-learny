@@ -1,7 +1,7 @@
 import { getAuth } from '@clerk/react-router/server'
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
-import { ActionFunctionArgs, json, redirect } from 'react-router';
+import { ActionFunctionArgs, data, redirect } from 'react-router';
 import { Form, Link } from 'react-router';
 import { z } from 'zod'
 import { Button } from '~/components/ui/button'
@@ -33,7 +33,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const submission = parseWithZod(formData, { schema })
 
   if (submission.status !== 'success') {
-    return json(submission.reply())
+    return data(submission.reply())
   }
 
   try {
@@ -46,7 +46,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
     return redirect(`/teacher/courses/${course.id}`)
   } catch {
-    return json({ error: 'Something went wrong' }, { status: 500 })
+    return data({ error: 'Something went wrong' }, { status: 500 })
   }
 }
 

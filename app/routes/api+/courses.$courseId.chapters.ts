@@ -1,12 +1,7 @@
 import { getAuth } from '@clerk/react-router/server'
 import { parseWithZod } from '@conform-to/zod'
-import { ActionFunctionArgs, json } from 'react-router';
-import {
-  jsonWithError,
-  jsonWithSuccess,
-  redirectWithError,
-  redirectWithSuccess,
-} from 'remix-toast'
+import { ActionFunctionArgs, data } from 'react-router';
+import { jsonWithError, redirectWithSuccess } from 'remix-toast'
 import { chaptersFormSchema } from '~/routes/_dashboard+/teacher+/_components/ChaptersForm'
 import { db } from '~/lib/db.server'
 
@@ -15,20 +10,20 @@ export async function action(args: ActionFunctionArgs) {
     const { userId } = await getAuth(args)
 
     if (!userId) {
-      return json({ error: 'Unauthorized' }, { status: 401 })
+      return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { courseId } = args.params
 
     if (!courseId) {
-      return json({ error: 'Course ID is required' }, { status: 400 })
+      return data({ error: 'Course ID is required' }, { status: 400 })
     }
 
     const formData = await args.request.formData()
     const submission = parseWithZod(formData, { schema: chaptersFormSchema })
 
     if (submission.status !== 'success') {
-      return json({ error: 'Failed to update course' }, { status: 400 })
+      return data({ error: 'Failed to update course' }, { status: 400 })
     }
 
     const { title } = submission.value
@@ -41,7 +36,7 @@ export async function action(args: ActionFunctionArgs) {
     })
 
     if (!courseOwner) {
-      return json({ error: 'Unauthorized' }, { status: 401 })
+      return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const lastChapter = await db.chapter.findFirst({

@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router';
 import crypto from 'crypto'
 import { createBunnyVideo } from '~/lib/bunny.server'
 
@@ -17,11 +17,11 @@ export async function action(args: ActionFunctionArgs) {
     const expiration = 3600 // 1 hour
     const expires = now + expiration
 
-    const data = `${process.env.BUNNY_LIBRARY_ID}${process.env.BUNNY_API_KEY}${expires}${videoId}`
+    const signaturePayload = `${process.env.BUNNY_LIBRARY_ID}${process.env.BUNNY_API_KEY}${expires}${videoId}`
     const hash = crypto.createHash('sha256')
-    const token = hash.update(data).digest('hex')
+    const token = hash.update(signaturePayload).digest('hex')
 
-    return json({
+    return data({
       headers: {
         videoId: videoId,
         libraryId: process.env.BUNNY_LIBRARY_ID!,

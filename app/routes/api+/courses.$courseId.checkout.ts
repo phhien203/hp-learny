@@ -1,5 +1,5 @@
 import { getAuth } from '@clerk/react-router/server'
-import { ActionFunctionArgs, json } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router';
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 import { getUserEmail } from '~/lib/clerk.server'
 import { db } from '~/lib/db.server'
@@ -10,19 +10,19 @@ export async function action(args: ActionFunctionArgs) {
     const { userId } = await getAuth(args)
 
     if (!userId) {
-      return json({ error: 'Unauthorized' }, { status: 401 })
+      return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { courseId } = args.params
 
     if (!courseId) {
-      return json({ error: 'Course ID is required' }, { status: 400 })
+      return data({ error: 'Course ID is required' }, { status: 400 })
     }
 
     const userEmail = await getUserEmail(userId)
 
     if (!userEmail || !isWhitelistedUser(userEmail)) {
-      return json({ error: 'Unauthorized' }, { status: 401 })
+      return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const course = await db.course.findUnique({
@@ -33,7 +33,7 @@ export async function action(args: ActionFunctionArgs) {
     })
 
     if (!course) {
-      return json({ error: 'Course not found' }, { status: 404 })
+      return data({ error: 'Course not found' }, { status: 404 })
     }
 
     const purchase = await db.purchase.findUnique({
@@ -110,9 +110,9 @@ export async function action(args: ActionFunctionArgs) {
     //   },
     // })
 
-    // return json({ url: stripeSession.url }, { status: 200 })
+    // return data({ url: stripeSession.url }, { status: 200 })
   } catch (error) {
     console.error('[COURSE_ID_CHECKOUT]', error)
-    return json({ error: 'Internal Server Error' }, { status: 500 })
+    return data({ error: 'Internal Server Error' }, { status: 500 })
   }
 }

@@ -1,6 +1,6 @@
 import { getAuth } from '@clerk/react-router/server'
 import { db } from '~/lib/db.server'
-import { ActionFunctionArgs, json } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router';
 import {
   jsonWithError,
   jsonWithSuccess,
@@ -12,13 +12,13 @@ export async function action(args: ActionFunctionArgs) {
     const { userId } = await getAuth(args)
 
     if (!userId) {
-      return json({ error: 'Unauthorized' }, { status: 401 })
+      return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { courseId, chapterId } = args.params
 
     if (!courseId || !chapterId) {
-      return json(
+      return data(
         { error: 'Course ID and chapter ID are required' },
         { status: 400 },
       )
@@ -31,7 +31,7 @@ export async function action(args: ActionFunctionArgs) {
     })
 
     if (!course) {
-      return json({ error: 'Unauthorized' }, { status: 401 })
+      return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const chapter = await db.chapter.findUnique({
@@ -42,7 +42,7 @@ export async function action(args: ActionFunctionArgs) {
     })
 
     if (!chapter) {
-      return json({ error: 'Chapter not found' }, { status: 404 })
+      return data({ error: 'Chapter not found' }, { status: 404 })
     }
 
     const formData = await args.request.formData()
