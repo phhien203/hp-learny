@@ -10,14 +10,9 @@ import {
   PlusCircleIcon,
   VideoIcon,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useInterval } from 'usehooks-ts'
-import { z } from 'zod'
 import { Button } from '~/components/ui/button'
-
-export const chapterVideoFormSchema = z.object({
-  videoUrl: z.string().min(1),
-})
 
 interface ChapterVideoFormProps {
   videoUrl?: string | null
@@ -32,7 +27,7 @@ export function BunnyChapterVideoForm({
 }: ChapterVideoFormProps) {
   const fetcher = useFetcher()
   const [isEditing, setIsEditing] = useState(false)
-  const [videoId, setVideoId] = useState('')
+  const videoIdRef = useRef('')
 
   const revalidator = useRevalidator()
   useInterval(
@@ -84,7 +79,7 @@ export function BunnyChapterVideoForm({
               data.headers.authorizationSignature,
             )
 
-            setVideoId(data.headers.videoId)
+            videoIdRef.current = data.headers.videoId
             window.sessionStorage.setItem(
               'upload-headers',
               JSON.stringify(data.headers),
@@ -93,6 +88,7 @@ export function BunnyChapterVideoForm({
             throw new Error('Failed to get Bunny video headers')
           }
         } else {
+          videoIdRef.current = headers.videoId
           req.setHeader('VideoId', headers.videoId)
           req.setHeader('LibraryId', headers.libraryId)
           req.setHeader('AuthorizationExpire', headers.authorizationExpire)
@@ -105,25 +101,38 @@ export function BunnyChapterVideoForm({
     }),
   )
 
-  uppy.on('upload-success', (file, response) => {
-    console.log('upload-success', file, response)
-    fetcher.submit(
-      {
-        videoUrl: videoId,
-        intent: 'updateChapterVideoUrl',
-      },
-      { method: 'post' },
-    )
+  useEffect(() => {
+    const onUploadSuccess = () => {
+      const videoId = videoIdRef.current
 
-    setVideoId('')
-    window.sessionStorage.removeItem('upload-headers')
-  })
+      if (videoId) {
+        fetcher.submit(
+          {
+            videoUrl: videoId,
+            intent: 'updateChapterVideoUrl',
+          },
+          { method: 'post' },
+        )
+      }
 
-  uppy.on('upload-error', (file, error) => {
-    console.error('upload-error', file, error)
-    setVideoId('')
-    window.sessionStorage.removeItem('upload-headers')
-  })
+      videoIdRef.current = ''
+      window.sessionStorage.removeItem('upload-headers')
+    }
+
+    const onUploadError = (_file: unknown, error: Error) => {
+      console.error('upload-error', error)
+      videoIdRef.current = ''
+      window.sessionStorage.removeItem('upload-headers')
+    }
+
+    uppy.on('upload-success', onUploadSuccess)
+    uppy.on('upload-error', onUploadError)
+
+    return () => {
+      uppy.off('upload-success', onUploadSuccess)
+      uppy.off('upload-error', onUploadError)
+    }
+  }, [uppy, fetcher])
 
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {

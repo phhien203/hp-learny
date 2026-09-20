@@ -32,10 +32,8 @@ import {
 } from '~/lib/bunny.server'
 import { db } from '~/lib/db.server'
 import { isTeacher } from '~/lib/user-role.server'
-import {
-  BunnyChapterVideoForm,
-  chapterVideoFormSchema,
-} from './components/BunnyChapterVideoForm.client'
+import { BunnyChapterVideoForm } from './components/BunnyChapterVideoForm.client'
+import { chapterVideoFormSchema } from './components/chapterVideoFormSchema'
 import {
   ChapterAccessForm,
   chapterAccessFormSchema,
