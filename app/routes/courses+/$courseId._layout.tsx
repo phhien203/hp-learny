@@ -1,6 +1,12 @@
 import { getAuth } from '@clerk/react-router/server'
-import { Chapter, Course, Purchase, UserProgress } from '@prisma/client'
-import { data, LoaderFunctionArgs, redirect, Outlet, useLoaderData } from 'react-router'
+import type { Chapter, Course, Purchase, UserProgress } from '~/lib/schema'
+import {
+  data,
+  LoaderFunctionArgs,
+  redirect,
+  Outlet,
+  useLoaderData,
+} from 'react-router'
 import { db } from '~/lib/db.server'
 import { getProgress } from '~/lib/get-progress.server'
 import CourseNavbar from './_components/CourseNavbar'

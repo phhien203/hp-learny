@@ -1,5 +1,5 @@
 import { getAuth } from '@clerk/react-router/server'
-import { ActionFunctionArgs } from 'react-router';
+import { ActionFunctionArgs } from 'react-router'
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 import { db } from '~/lib/db.server'
 
@@ -44,7 +44,7 @@ export async function action(args: ActionFunctionArgs) {
     }
 
     const hasPublishedChapter = ownCourse.chapters.some(
-      (chapter) => chapter.isPublished,
+      (chapter: { isPublished: boolean }) => chapter.isPublished,
     )
 
     if (

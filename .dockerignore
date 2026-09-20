@@ -1,4 +1,8 @@
 node_modules
+.env
+.neon
+.git
+build
 .agents
 skills-lock.json
 

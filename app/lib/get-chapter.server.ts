@@ -1,4 +1,4 @@
-import { Attachment, Chapter } from '@prisma/client'
+import type { Attachment, Chapter } from './schema'
 import { signVideoUrl } from './bunny.server'
 import { db } from './db.server'
 

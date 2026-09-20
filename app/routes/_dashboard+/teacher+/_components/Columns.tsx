@@ -1,5 +1,5 @@
-import { Course } from '@prisma/client'
-import { Link } from 'react-router';
+import type { Course } from '~/lib/schema'
+import { Link } from 'react-router'
 import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDownIcon, MoreHorizontalIcon, PencilIcon } from 'lucide-react'
 import { Badge } from '~/components/ui/badge'
