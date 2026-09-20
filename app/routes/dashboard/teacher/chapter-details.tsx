@@ -1,6 +1,16 @@
+import { and, eq } from 'drizzle-orm'
+import { courses, chapters } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
 import { parseWithZod } from '@conform-to/zod'
-import { ActionFunctionArgs, data, LoaderFunctionArgs, redirect, Link, useLoaderData, useParams } from 'react-router'
+import {
+  ActionFunctionArgs,
+  data,
+  LoaderFunctionArgs,
+  redirect,
+  Link,
+  useLoaderData,
+  useParams,
+} from 'react-router'
 import {
   ArrowLeftIcon,
   EyeIcon,
@@ -51,22 +61,19 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const { courseId, chapterId } = args.params
 
-  const ownCourse = await db.course.findUnique({
-    where: {
-      id: courseId,
-      userId,
-    },
+  const ownCourse = await db.query.courses.findFirst({
+    where: and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)),
   })
 
   if (!ownCourse) {
     return redirect('/')
   }
 
-  const chapter = await db.chapter.findUnique({
-    where: {
-      id: chapterId,
-      courseId: ownCourse.id,
-    },
+  const chapter = await db.query.chapters.findFirst({
+    where: and(
+      eq(chapters.id, chapterId ?? ''),
+      eq(chapters.courseId, ownCourse.id ?? ''),
+    ),
   })
 
   if (!chapter) {
@@ -203,11 +210,8 @@ export async function action(args: ActionFunctionArgs) {
     )
   }
 
-  const ownCourse = await db.course.findUnique({
-    where: {
-      id: courseId,
-      userId,
-    },
+  const ownCourse = await db.query.courses.findFirst({
+    where: and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)),
   })
 
   if (!ownCourse) {
@@ -236,11 +240,11 @@ export async function action(args: ActionFunctionArgs) {
 async function deleteChapter(args: ActionFunctionArgs, userId: string) {
   const { courseId, chapterId } = args.params
 
-  const chapter = await db.chapter.findUnique({
-    where: {
-      id: chapterId,
-      courseId,
-    },
+  const chapter = await db.query.chapters.findFirst({
+    where: and(
+      eq(chapters.id, chapterId ?? ''),
+      eq(chapters.courseId, courseId ?? ''),
+    ),
   })
 
   if (!chapter) {
@@ -255,30 +259,35 @@ async function deleteChapter(args: ActionFunctionArgs, userId: string) {
     await deleteBunnyVideo(chapter.videoUrl)
   }
 
-  await db.chapter.delete({
-    where: {
-      id: chapterId,
-      courseId,
-    },
-  })
+  await (
+    await db
+      .delete(chapters)
+      .where(
+        and(
+          eq(chapters.id, chapterId ?? ''),
+          eq(chapters.courseId, courseId ?? ''),
+        ),
+      )
+      .returning()
+  )[0]
 
-  const publishedChaptersInCourse = await db.chapter.findMany({
-    where: {
-      courseId,
-      isPublished: true,
-    },
+  const publishedChaptersInCourse = await db.query.chapters.findMany({
+    where: and(
+      eq(chapters.courseId, courseId ?? ''),
+      eq(chapters.isPublished, true),
+    ),
   })
 
   if (publishedChaptersInCourse.length === 0) {
-    await db.course.update({
-      where: {
-        id: courseId,
-        userId,
-      },
-      data: {
-        isPublished: false,
-      },
-    })
+    await (
+      await db
+        .update(courses)
+        .set({
+          isPublished: false,
+        })
+        .where(and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)))
+        .returning()
+    )[0]
   }
 
   return redirectWithSuccess(`/teacher/courses/${args.params.courseId}`, {
@@ -309,11 +318,11 @@ async function updateChapter(args: ActionFunctionArgs) {
 
   if (submission?.status === 'success') {
     if ((submission.value as { videoUrl: string }).videoUrl) {
-      const chapter = await db.chapter.findUnique({
-        where: {
-          id: args.params.chapterId,
-          courseId: args.params.courseId,
-        },
+      const chapter = await db.query.chapters.findFirst({
+        where: and(
+          eq(chapters.id, args.params.chapterId ?? ''),
+          eq(chapters.courseId, args.params.courseId ?? ''),
+        ),
       })
 
       if (!chapter) {
@@ -329,13 +338,18 @@ async function updateChapter(args: ActionFunctionArgs) {
       }
     }
 
-    await db.chapter.update({
-      where: {
-        id: args.params.chapterId,
-        courseId: args.params.courseId,
-      },
-      data: submission.value,
-    })
+    await (
+      await db
+        .update(chapters)
+        .set(submission.value)
+        .where(
+          and(
+            eq(chapters.id, args.params.chapterId ?? ''),
+            eq(chapters.courseId, args.params.courseId ?? ''),
+          ),
+        )
+        .returning()
+    )[0]
 
     return jsonWithSuccess({ ok: true }, 'Chapter updated successfully! 🎉')
   }

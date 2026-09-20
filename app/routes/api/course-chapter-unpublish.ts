@@ -1,6 +1,8 @@
+import { and, eq } from 'drizzle-orm'
+import { courses, chapters } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
 import { db } from '~/lib/db.server'
-import { ActionFunctionArgs, data } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router'
 import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 
 export async function action(args: ActionFunctionArgs) {
@@ -20,44 +22,48 @@ export async function action(args: ActionFunctionArgs) {
       )
     }
 
-    const courseOwner = await db.course.findUnique({
-      where: {
-        id: courseId,
-        userId: userId,
-      },
+    const courseOwner = await db.query.courses.findFirst({
+      where: and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)),
     })
 
     if (!courseOwner) {
       return data({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const unPublishedChapter = await db.chapter.update({
-      where: {
-        id: chapterId,
-        courseId: courseId,
-      },
-      data: {
-        isPublished: false,
-      },
-    })
+    const unPublishedChapter = (
+      await db
+        .update(chapters)
+        .set({
+          isPublished: false,
+        })
+        .where(
+          and(
+            eq(chapters.id, chapterId ?? ''),
+            eq(chapters.courseId, courseId ?? ''),
+          ),
+        )
+        .returning()
+    )[0]
 
-    const publishedChapters = await db.chapter.findMany({
-      where: {
-        courseId: courseId,
-        isPublished: true,
-      },
+    const publishedChapters = await db.query.chapters.findMany({
+      where: and(
+        eq(chapters.courseId, courseId ?? ''),
+        eq(chapters.isPublished, true),
+      ),
     })
 
     if (!publishedChapters.length) {
-      await db.course.update({
-        where: {
-          id: courseId,
-          userId: userId,
-        },
-        data: {
-          isPublished: false,
-        },
-      })
+      await (
+        await db
+          .update(courses)
+          .set({
+            isPublished: false,
+          })
+          .where(
+            and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)),
+          )
+          .returning()
+      )[0]
     }
 
     return jsonWithSuccess(

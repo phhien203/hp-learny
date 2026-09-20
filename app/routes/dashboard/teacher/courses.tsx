@@ -1,3 +1,5 @@
+import { eq } from 'drizzle-orm'
+import { courses as coursesTable } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
 import { data, LoaderFunctionArgs, redirect, useLoaderData } from 'react-router'
 import { db } from '~/lib/db.server'
@@ -18,8 +20,8 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect('/search')
   }
 
-  const courses = await db.course.findMany({
-    where: { userId },
+  const courses = await db.query.courses.findMany({
+    where: eq(coursesTable.userId, userId),
   })
 
   return data({ courses })

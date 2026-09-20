@@ -1,3 +1,4 @@
+import { courses } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
@@ -36,12 +37,15 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   try {
-    const course = await db.course.create({
-      data: {
-        title: submission.value.title,
-        userId,
-      },
-    })
+    const course = (
+      await db
+        .insert(courses)
+        .values({
+          title: submission.value.title,
+          userId,
+        })
+        .returning()
+    )[0]
 
     return redirect(`/teacher/courses/${course.id}`)
   } catch {

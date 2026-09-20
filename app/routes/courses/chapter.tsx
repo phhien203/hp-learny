@@ -1,5 +1,12 @@
+import { userProgress } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
-import { ActionFunctionArgs, data, LoaderFunctionArgs, redirect, useLoaderData } from 'react-router'
+import {
+  ActionFunctionArgs,
+  data,
+  LoaderFunctionArgs,
+  redirect,
+  useLoaderData,
+} from 'react-router'
 import { FileIcon } from 'lucide-react'
 import { jsonWithSuccess, redirectWithSuccess } from 'remix-toast'
 import { Banner } from '~/components/Banner'
@@ -166,23 +173,25 @@ export async function action(args: ActionFunctionArgs) {
   if (action === 'toggle-complete') {
     const isCompleted = formData.get('isCompleted') === 'true'
     const nextChapterId = formData.get('nextChapterId')
-
-    await db.userProgress.upsert({
-      where: {
-        userId_chapterId: {
+    await (
+      await db
+        .insert(userProgress)
+        .values({
           userId,
           chapterId,
-        },
-      },
-      update: {
-        isCompleted,
-      },
-      create: {
-        userId,
-        chapterId,
-        isCompleted,
-      },
-    })
+          isCompleted,
+        })
+        .onConflictDoUpdate({
+          target: [userProgress.userId, userProgress.chapterId],
+          set: {
+            ...{
+              isCompleted,
+            },
+            updatedAt: new Date(),
+          },
+        })
+        .returning()
+    )[0]
 
     if (isCompleted && nextChapterId) {
       return redirectWithSuccess(

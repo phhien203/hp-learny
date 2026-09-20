@@ -1,3 +1,11 @@
+import { and, asc, eq, gt } from 'drizzle-orm'
+import {
+  purchases,
+  courses,
+  chapters,
+  attachments as attachmentsTable,
+  userProgress as userProgressTable,
+} from '~/lib/schema'
 import type { Attachment, Chapter } from './schema'
 import { signVideoUrl } from './bunny.server'
 import { db } from './db.server'
@@ -14,32 +22,24 @@ export async function getChapter({
   chapterId,
 }: GetChapterArgs) {
   try {
-    const purchase = await db.purchase.findUnique({
-      where: {
-        userId_courseId: {
-          userId,
-          courseId,
-        },
-      },
+    const purchase = await db.query.purchases.findFirst({
+      where: and(
+        eq(purchases.userId, userId),
+        eq(purchases.courseId, courseId ?? ''),
+      ),
     })
 
-    const course = await db.course.findUnique({
-      where: {
-        id: courseId,
-        isPublished: true,
-      },
-      select: {
-        id: true,
-        price: true,
-      },
+    const course = await db.query.courses.findFirst({
+      where: and(eq(courses.id, courseId ?? ''), eq(courses.isPublished, true)),
+      columns: { id: true, price: true },
     })
 
-    const chapter = await db.chapter.findUnique({
-      where: {
-        id: chapterId,
-        courseId,
-        isPublished: true,
-      },
+    const chapter = await db.query.chapters.findFirst({
+      where: and(
+        eq(chapters.id, chapterId ?? ''),
+        eq(chapters.courseId, courseId ?? ''),
+        eq(chapters.isPublished, true),
+      ),
     })
 
     if (!chapter || !course) {
@@ -50,33 +50,28 @@ export async function getChapter({
     let nextChapter: Chapter | null = null
 
     if (purchase) {
-      attachments = await db.attachment.findMany({
-        where: { courseId },
+      attachments = await db.query.attachments.findMany({
+        where: eq(attachmentsTable.courseId, courseId ?? ''),
       })
     }
 
     if (chapter.isFree || purchase) {
-      nextChapter = await db.chapter.findFirst({
-        where: {
-          courseId,
-          isPublished: true,
-          position: {
-            gt: chapter.position,
-          },
-        },
-        orderBy: {
-          position: 'asc',
-        },
-      })
+      nextChapter =
+        (await db.query.chapters.findFirst({
+          where: and(
+            eq(chapters.courseId, courseId ?? ''),
+            eq(chapters.isPublished, true),
+            gt(chapters.position, chapter.position),
+          ),
+          orderBy: [asc(chapters.position)],
+        })) ?? null
     }
 
-    const userProgress = await db.userProgress.findUnique({
-      where: {
-        userId_chapterId: {
-          userId,
-          chapterId,
-        },
-      },
+    const userProgress = await db.query.userProgress.findFirst({
+      where: and(
+        eq(userProgressTable.userId, userId),
+        eq(userProgressTable.chapterId, chapterId ?? ''),
+      ),
     })
 
     const videoId = chapter.videoUrl

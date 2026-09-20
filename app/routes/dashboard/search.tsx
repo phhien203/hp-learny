@@ -1,3 +1,5 @@
+import { asc } from 'drizzle-orm'
+import { categories as categoriesTable } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
 import { data, LoaderFunctionArgs, redirect, useLoaderData } from 'react-router'
 import { getUserEmail } from '~/lib/clerk.server'
@@ -28,10 +30,8 @@ export async function loader(args: LoaderFunctionArgs) {
     })
   }
 
-  const categories = await db.category.findMany({
-    orderBy: {
-      name: 'asc',
-    },
+  const categories = await db.query.categories.findMany({
+    orderBy: [asc(categoriesTable.name)],
   })
 
   const courses = await getCourses({ userId, ...args.params })

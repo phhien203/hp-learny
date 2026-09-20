@@ -1,6 +1,8 @@
+import { and, eq } from 'drizzle-orm'
+import { courses, attachments } from '~/lib/schema'
 import { getAuth } from '@clerk/react-router/server'
 import { parseWithZod } from '@conform-to/zod'
-import { ActionFunctionArgs, data } from 'react-router';
+import { ActionFunctionArgs, data } from 'react-router'
 import { jsonWithSuccess } from 'remix-toast'
 import { attachmentFormSchema } from '~/routes/dashboard/teacher/components/AttachmentForm'
 import { db } from '~/lib/db.server'
@@ -27,24 +29,24 @@ export async function action(args: ActionFunctionArgs) {
 
   const { name, url } = submission.value
 
-  const courseOwner = await db.course.findUnique({
-    where: {
-      id: courseId,
-      userId,
-    },
+  const courseOwner = await db.query.courses.findFirst({
+    where: and(eq(courses.id, courseId ?? ''), eq(courses.userId, userId)),
   })
 
   if (!courseOwner) {
     return data({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const attachment = await db.attachment.create({
-    data: {
-      name,
-      url,
-      courseId,
-    },
-  })
+  const attachment = (
+    await db
+      .insert(attachments)
+      .values({
+        name,
+        url,
+        courseId,
+      })
+      .returning()
+  )[0]
 
   return jsonWithSuccess(
     { ok: true, attachment },

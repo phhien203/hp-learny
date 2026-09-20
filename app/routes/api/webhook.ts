@@ -1,4 +1,5 @@
-import { ActionFunctionArgs, data } from 'react-router';
+import { purchases } from '~/lib/schema'
+import { ActionFunctionArgs, data } from 'react-router'
 import Stripe from 'stripe'
 import { db } from '~/lib/db.server'
 import { stripe } from '~/lib/stripe'
@@ -36,12 +37,15 @@ export async function action(args: ActionFunctionArgs) {
       return data({ error: 'User ID or course ID is missing' }, { status: 400 })
     }
 
-    await db.purchase.create({
-      data: {
-        userId,
-        courseId,
-      },
-    })
+    await (
+      await db
+        .insert(purchases)
+        .values({
+          userId,
+          courseId,
+        })
+        .returning()
+    )[0]
   } else {
     console.error('Unsupported event type', event.type)
     return data({ error: 'Unsupported event type' }, { status: 200 })
