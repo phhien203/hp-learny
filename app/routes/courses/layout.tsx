@@ -9,8 +9,8 @@ import {
 } from 'react-router'
 import { db } from '~/lib/db.server'
 import { getProgress } from '~/lib/get-progress.server'
-import CourseNavbar from './_components/CourseNavbar'
-import { CourseSidebar } from './_components/CourseSidebar'
+import CourseNavbar from './components/CourseNavbar'
+import { CourseSidebar } from './components/CourseSidebar'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)

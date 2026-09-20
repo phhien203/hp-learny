@@ -6,7 +6,7 @@ import { getCourses } from '~/lib/get-courses.server'
 import { isWhitelistedUser } from '~/lib/user-role.server'
 import CoursesList, {
   CourseWithProgressWithCategory,
-} from './_components/CoursesList'
+} from './components/CoursesList'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)

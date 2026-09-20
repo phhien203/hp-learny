@@ -22,17 +22,17 @@ import { Banner } from '~/components/Banner'
 import { IconBadge } from '~/components/IconBadge'
 import { db } from '~/lib/db.server'
 import { isTeacher } from '~/lib/user-role.server'
-import { AttachmentForm } from './_components/AttachmentForm'
-import { CategoryForm, categoryFormSchema } from './_components/CategoryForm'
-import { ChaptersForm } from './_components/ChaptersForm'
-import { CourseAction } from './_components/CourseActions'
+import { AttachmentForm } from './components/AttachmentForm'
+import { CategoryForm, categoryFormSchema } from './components/CategoryForm'
+import { ChaptersForm } from './components/ChaptersForm'
+import { CourseAction } from './components/CourseActions'
 import {
   DescriptionForm,
   descriptionFormSchema,
-} from './_components/DescriptionForm'
-import { ImageForm, imageFormSchema } from './_components/ImageForm'
-import { PriceForm, priceFormSchema } from './_components/PriceForm'
-import { TitleForm, titleFormSchema } from './_components/TitleForm'
+} from './components/DescriptionForm'
+import { ImageForm, imageFormSchema } from './components/ImageForm'
+import { PriceForm, priceFormSchema } from './components/PriceForm'
+import { TitleForm, titleFormSchema } from './components/TitleForm'
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { userId } = await getAuth(args)

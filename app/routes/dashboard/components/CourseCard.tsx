@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 import { BookOpenIcon } from 'lucide-react'
 import { CourseProgress } from '~/components/CourseProgress'
 import { IconBadge } from '~/components/IconBadge'
-import { CourseEnrollButton } from '~/routes/courses+/_components/CourseEnrollButton'
+import { CourseEnrollButton } from '~/routes/courses/components/CourseEnrollButton'
 
 interface CourseCardProps {
   id: string

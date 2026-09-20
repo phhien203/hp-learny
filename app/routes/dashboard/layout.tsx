@@ -1,7 +1,7 @@
 import { data, LoaderFunctionArgs, Outlet, useLoaderData } from 'react-router'
 import { isTeacher } from '~/lib/user-role.server'
-import { Navbar } from './_components/Navbar'
-import { Sidebar } from './_components/Sidebar'
+import { Navbar } from './components/Navbar'
+import { Sidebar } from './components/Sidebar'
 
 export async function loader(args: LoaderFunctionArgs) {
   const checkTeacher = await isTeacher(args)

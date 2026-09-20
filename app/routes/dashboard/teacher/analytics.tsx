@@ -1,8 +1,8 @@
 import { getAuth } from '@clerk/react-router/server'
 import { data, LoaderFunctionArgs, redirect, useLoaderData } from 'react-router'
 import { getAnalytics } from '~/lib/get-analytics'
-import { DataCard } from './_components/DataCard'
-import { Chart, ChartProps } from './_components/Chart'
+import { DataCard } from './components/DataCard'
+import { Chart, ChartProps } from './components/Chart'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)

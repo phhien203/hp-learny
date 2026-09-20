@@ -8,9 +8,9 @@ import { getUserEmail } from '~/lib/clerk.server'
 import { db } from '~/lib/db.server'
 import { getChapter } from '~/lib/get-chapter.server'
 import { isWhitelistedUser } from '~/lib/user-role.server'
-import { CourseEnrollButton } from './_components/CourseEnrollButton'
-import { CourseProgressButton } from './_components/CourseProgressButton'
-import { VideoPlayer } from './_components/VideoPlayer'
+import { CourseEnrollButton } from './components/CourseEnrollButton'
+import { CourseProgressButton } from './components/CourseProgressButton'
+import { VideoPlayer } from './components/VideoPlayer'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)

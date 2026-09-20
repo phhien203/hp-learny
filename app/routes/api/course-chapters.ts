@@ -2,7 +2,7 @@ import { getAuth } from '@clerk/react-router/server'
 import { parseWithZod } from '@conform-to/zod'
 import { ActionFunctionArgs, data } from 'react-router';
 import { jsonWithError, redirectWithSuccess } from 'remix-toast'
-import { chaptersFormSchema } from '~/routes/_dashboard+/teacher+/_components/ChaptersForm'
+import { chaptersFormSchema } from '~/routes/dashboard/teacher/components/ChaptersForm'
 import { db } from '~/lib/db.server'
 
 export async function action(args: ActionFunctionArgs) {
