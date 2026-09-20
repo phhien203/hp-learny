@@ -33,7 +33,6 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@react-router/node": "^7.0.0",
     "@react-router/serve": "^7.0.0",
-    "@supabase/supabase-js": "^2.45.4",
     "@tanstack/react-table": "^8.20.5",
     "@uploadthing/react": "^7.0.2",
     "@uppy/core": "^4.2.1",

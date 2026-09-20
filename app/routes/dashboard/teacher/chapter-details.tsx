@@ -32,7 +32,10 @@ import {
 } from '~/lib/bunny.server'
 import { db } from '~/lib/db.server'
 import { isTeacher } from '~/lib/user-role.server'
-import { BunnyChapterVideoForm } from './components/BunnyChapterVideoForm.client'
+import {
+  BunnyChapterVideoForm,
+  chapterVideoFormSchema,
+} from './components/BunnyChapterVideoForm.client'
 import {
   ChapterAccessForm,
   chapterAccessFormSchema,
@@ -43,7 +46,6 @@ import {
   chapterDescriptionFormSchema,
 } from './components/ChapterDescriptionForm'
 import { ChapterTitleForm } from './components/ChapterTitleForm'
-import { chapterVideoFormSchema } from './components/ChapterVideoForm'
 import { titleFormSchema } from './components/TitleForm'
 
 export async function loader(args: LoaderFunctionArgs) {
