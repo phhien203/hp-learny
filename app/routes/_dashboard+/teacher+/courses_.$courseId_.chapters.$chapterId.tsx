@@ -12,7 +12,7 @@ import {
   jsonWithSuccess,
   redirectWithSuccess,
 } from 'remix-toast'
-import { ClientOnly } from 'remix-utils/client-only'
+import { ClientOnly } from '~/components/ClientOnly'
 import { Banner } from '~/components/Banner'
 import { IconBadge } from '~/components/IconBadge'
 import {
