@@ -1,5 +1,5 @@
 import { getAuth } from '@clerk/react-router/server'
-import { json, LoaderFunctionArgs, redirect } from 'react-router';
+import { data, LoaderFunctionArgs, redirect } from 'react-router';
 import { useLoaderData } from 'react-router';
 import { getAnalytics } from '~/lib/get-analytics'
 import { DataCard } from './_components/DataCard'
@@ -12,10 +12,10 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect('/sign-in')
   }
 
-  const { data, totalRevenue, totalSales } = await getAnalytics(userId)
+  const { data: chartData, totalRevenue, totalSales } = await getAnalytics(userId)
 
-  return json({
-    data,
+  return data({
+    data: chartData,
     totalRevenue,
     totalSales,
   })

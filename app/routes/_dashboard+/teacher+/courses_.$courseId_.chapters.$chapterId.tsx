@@ -1,6 +1,6 @@
 import { getAuth } from '@clerk/react-router/server'
 import { parseWithZod } from '@conform-to/zod'
-import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect } from 'react-router';
+import { ActionFunctionArgs, data, LoaderFunctionArgs, redirect } from 'react-router';
 import { Link, useLoaderData, useParams } from 'react-router';
 import {
   ArrowLeftIcon,
@@ -88,7 +88,7 @@ export async function loader(args: LoaderFunctionArgs) {
     encodeProgress = status?.[1] || 0
   }
 
-  return json({ chapter, signedVideoUrl, videoStatus, encodeProgress })
+  return data({ chapter, signedVideoUrl, videoStatus, encodeProgress })
 }
 
 export default function ChapterPage() {

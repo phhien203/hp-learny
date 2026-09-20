@@ -1,6 +1,6 @@
 import { getAuth } from '@clerk/react-router/server'
 import { parseWithZod } from '@conform-to/zod'
-import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect } from 'react-router';
+import { ActionFunctionArgs, data, LoaderFunctionArgs, redirect } from 'react-router';
 import { useLoaderData } from 'react-router';
 import {
   CircleDollarSignIcon,
@@ -70,7 +70,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   })
 
-  return json({ course, categories })
+  return data({ course, categories })
 }
 
 export default function TeacherCoursePage() {

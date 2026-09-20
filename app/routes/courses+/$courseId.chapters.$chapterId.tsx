@@ -1,5 +1,5 @@
 import { getAuth } from '@clerk/react-router/server'
-import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect } from 'react-router';
+import { ActionFunctionArgs, data, LoaderFunctionArgs, redirect } from 'react-router';
 import { useLoaderData } from 'react-router';
 import { FileIcon } from 'lucide-react'
 import { jsonWithSuccess, redirectWithSuccess } from 'remix-toast'
@@ -46,7 +46,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect('/')
   }
 
-  return json({
+  return data({
     chapter,
     course,
     attachments,
@@ -149,13 +149,13 @@ export async function action(args: ActionFunctionArgs) {
   const { userId } = await getAuth(args)
 
   if (!userId) {
-    return json({ error: 'Unauthorized' }, { status: 401 })
+    return data({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { courseId, chapterId } = args.params
 
   if (!courseId || !chapterId) {
-    return json(
+    return data(
       { error: 'Course ID and chapter ID are required' },
       { status: 400 },
     )

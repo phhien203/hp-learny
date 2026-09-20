@@ -1,5 +1,5 @@
 import { getAuth } from '@clerk/react-router/server'
-import { json, LoaderFunctionArgs, redirect } from 'react-router';
+import { data, LoaderFunctionArgs, redirect } from 'react-router';
 import { useLoaderData } from 'react-router';
 import { getUserEmail } from '~/lib/clerk.server'
 import { db } from '~/lib/db.server'
@@ -23,7 +23,7 @@ export async function loader(args: LoaderFunctionArgs) {
   }
 
   if (!isWhitelistedUser(userEmail)) {
-    return json({
+    return data({
       categories: [],
       courses: [],
     })
@@ -37,7 +37,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const courses = await getCourses({ userId, ...args.params })
 
-  return json({ categories, courses })
+  return data({ categories, courses })
 }
 
 export default function SearchPage() {

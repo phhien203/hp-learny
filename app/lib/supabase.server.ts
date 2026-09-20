@@ -1,5 +1,10 @@
-import { UploadHandler } from 'react-router';
 import { createClient } from '@supabase/supabase-js'
+
+type UploadHandler = (args: {
+  data: AsyncIterable<Uint8Array>
+  filename?: string
+  contentType: string
+}) => Promise<string | null>
 
 // I use the ! to mark the env vars as defined but you should use some
 // sort of validation to make sure they are!
