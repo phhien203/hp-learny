@@ -15,7 +15,9 @@ export async function getProgress(
       },
     })
 
-    const publishedChapterIds = publishedChapters.map((chapter) => chapter.id)
+    const publishedChapterIds = publishedChapters.map(
+      (chapter: { id: string }) => chapter.id,
+    )
 
     const validCompletedChapters = await db.userProgress.count({
       where: {

@@ -1,4 +1,4 @@
-import { Category } from '@prisma/client'
+import type { Category } from '~/lib/schema'
 import {
   FcEngineering,
   FcFilmReel,

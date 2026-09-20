@@ -1,4 +1,4 @@
-import { Chapter, Course, Purchase, UserProgress } from '@prisma/client'
+import type { Chapter, Course, Purchase, UserProgress } from '~/lib/schema'
 import { CourseProgress } from '~/components/CourseProgress'
 import { CourseSidebarItem } from './CourseSidebarItem'
 

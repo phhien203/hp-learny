@@ -1,6 +1,12 @@
 import { getAuth } from '@clerk/react-router/server'
 import { parseWithZod } from '@conform-to/zod'
-import { ActionFunctionArgs, data, LoaderFunctionArgs, redirect, useLoaderData } from 'react-router'
+import {
+  ActionFunctionArgs,
+  data,
+  LoaderFunctionArgs,
+  redirect,
+  useLoaderData,
+} from 'react-router'
 import {
   CircleDollarSignIcon,
   FileIcon,
@@ -80,7 +86,9 @@ export default function TeacherCoursePage() {
     course.description,
     course.imageUrl,
     course.categoryId,
-    course.chapters.some((chapter) => chapter.isPublished),
+    course.chapters.some(
+      (chapter: { isPublished: boolean }) => chapter.isPublished,
+    ),
   ]
 
   const totalFields = requiredFields.length
@@ -124,10 +132,12 @@ export default function TeacherCoursePage() {
             <ImageForm initialData={course} />
             <CategoryForm
               initialData={course.categoryId}
-              options={categories.map((category) => ({
-                value: category.id,
-                label: category.name,
-              }))}
+              options={categories.map(
+                (category: { id: string; name: string }) => ({
+                  value: category.id,
+                  label: category.name,
+                }),
+              )}
             />
           </div>
           <div className="space-y-6">

@@ -1,4 +1,4 @@
-import { Chapter, Course, UserProgress } from '@prisma/client'
+import type { Chapter, Course, UserProgress } from '~/lib/schema'
 import { MenuIcon } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from '~/components/ui/sheet'
 import { CourseSidebar } from './CourseSidebar'

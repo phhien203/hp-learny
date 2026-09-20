@@ -1,4 +1,4 @@
-import { Category, Course, Chapter } from '@prisma/client'
+import type { Category, Course, Chapter } from './schema'
 import { db } from './db.server'
 import { getProgress } from './get-progress.server'
 
@@ -36,7 +36,7 @@ export async function getDashboardCourses(
     })
 
     const courses = purchasedCourses.map(
-      (purchase) => purchase.course,
+      (purchase: { course: CourseWithProgressWithCategory }) => purchase.course,
     ) as CourseWithProgressWithCategory[]
 
     for (const course of courses) {

@@ -1,4 +1,4 @@
-import { Course, Purchase } from '@prisma/client'
+import type { Course, Purchase } from './schema'
 import { db } from './db.server'
 
 type PurchaseWithCourse = Purchase & {

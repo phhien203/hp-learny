@@ -1,4 +1,4 @@
-import { Category, Course } from '@prisma/client'
+import type { Category, Course } from '~/lib/schema'
 import CourseCard from './CourseCard'
 
 export type CourseWithProgressWithCategory = Course & {
