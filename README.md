@@ -1,5 +1,9 @@
 # Pet LMS
 
+## Routing
+
+Routes are defined explicitly in `app/routes.ts` using React Router's `route`, `layout`, and `index` helpers. Add or change URL paths there; route module filenames do not determine URLs.
+
 ## Database
 
 Pet LMS uses Neon PostgreSQL and Drizzle. The schema lives in `app/lib/schema.ts`; versioned changes live in `drizzle/`. The current staging database is `pet_lms` on the `hp-learny` project's `staging` branch. Keep Pet LMS in its own database: `neondb` is used by another app.

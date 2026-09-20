@@ -22,19 +22,19 @@ import {
 } from '~/lib/bunny.server'
 import { db } from '~/lib/db.server'
 import { isTeacher } from '~/lib/user-role.server'
-import { BunnyChapterVideoForm } from './_components/BunnyChapterVideoForm.client'
+import { BunnyChapterVideoForm } from './components/BunnyChapterVideoForm.client'
 import {
   ChapterAccessForm,
   chapterAccessFormSchema,
-} from './_components/ChapterAccessForm'
-import { ChapterActions } from './_components/ChapterActions'
+} from './components/ChapterAccessForm'
+import { ChapterActions } from './components/ChapterActions'
 import {
   ChapterDescriptionForm,
   chapterDescriptionFormSchema,
-} from './_components/ChapterDescriptionForm'
-import { ChapterTitleForm } from './_components/ChapterTitleForm'
-import { chapterVideoFormSchema } from './_components/ChapterVideoForm'
-import { titleFormSchema } from './_components/TitleForm'
+} from './components/ChapterDescriptionForm'
+import { ChapterTitleForm } from './components/ChapterTitleForm'
+import { chapterVideoFormSchema } from './components/ChapterVideoForm'
+import { titleFormSchema } from './components/TitleForm'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)

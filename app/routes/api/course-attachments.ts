@@ -2,7 +2,7 @@ import { getAuth } from '@clerk/react-router/server'
 import { parseWithZod } from '@conform-to/zod'
 import { ActionFunctionArgs, data } from 'react-router';
 import { jsonWithSuccess } from 'remix-toast'
-import { attachmentFormSchema } from '~/routes/_dashboard+/teacher+/_components/AttachmentForm'
+import { attachmentFormSchema } from '~/routes/dashboard/teacher/components/AttachmentForm'
 import { db } from '~/lib/db.server'
 
 export async function action(args: ActionFunctionArgs) {

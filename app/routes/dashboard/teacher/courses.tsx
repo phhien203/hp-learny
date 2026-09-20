@@ -2,8 +2,8 @@ import { getAuth } from '@clerk/react-router/server'
 import { data, LoaderFunctionArgs, redirect, useLoaderData } from 'react-router'
 import { db } from '~/lib/db.server'
 import { isTeacher } from '~/lib/user-role.server'
-import { columns } from './_components/Columns'
-import { DataTable } from './_components/DataTable'
+import { columns } from './components/Columns'
+import { DataTable } from './components/DataTable'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)
