@@ -1,0 +1,15 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title">
+  <title id="title">HP Learny</title>
+  <defs>
+    <linearGradient id="brand" x1="6" y1="6" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#14B8A6"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="2" y="2" width="60" height="60" rx="18" fill="url(#brand)"/>
+  <path d="M12 11H17V19H24V11H29V34H24V24H17V34H12V11Z" fill="white"/>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M33 11H42C48.8 11 52 14.5 52 20C52 25.7 48.4 29 42 29H38V34H33V11ZM38 16V24H42C45.3 24 46.8 22.7 46.8 20C46.8 17.3 45.3 16 42 16H38Z" fill="white"/>
+  <path d="M10 40C18 37.2 25.5 38.3 32 43V55C25.7 50.2 18.2 49 10 52V40Z" fill="white" fill-opacity="0.22" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M54 40C46 37.2 38.5 38.3 32 43V55C38.3 50.2 45.8 49 54 52V40Z" fill="white" fill-opacity="0.22" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+</svg>

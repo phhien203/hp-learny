@@ -1,8 +1,12 @@
 import { getAuth } from '@clerk/react-router/server'
-import { redirect, type LoaderFunctionArgs, type MetaFunction } from 'react-router'
+import {
+  redirect,
+  type LoaderFunctionArgs,
+  type MetaFunction,
+} from 'react-router'
 
 export const meta: MetaFunction = () => {
-  return [{ title: 'PET LMS' }, { name: 'description', content: 'PET LMS' }]
+  return [{ title: 'HP Learny' }, { name: 'description', content: 'HP Learny' }]
 }
 
 export async function loader(args: LoaderFunctionArgs) {

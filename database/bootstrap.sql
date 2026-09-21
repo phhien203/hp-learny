@@ -1,4 +1,4 @@
--- Initial Drizzle schema for a new, empty Pet LMS database.
+-- Initial Drizzle schema for a new, empty HP Learny database.
 -- Keep this baseline fixed; apply later changes through drizzle/ migrations.
 CREATE TABLE "Attachment" (
 	"id" text PRIMARY KEY NOT NULL,

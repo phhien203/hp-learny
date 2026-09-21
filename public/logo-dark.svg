@@ -1,20 +1,10 @@
 <svg width="240" height="64" viewBox="0 0 240 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title description">
   <title id="title">HP Learny</title>
   <desc id="description">An HP monogram above an open book beside the HP Learny wordmark</desc>
-  <style>
-    .wordmark { fill: #0f172a; }
-    .accent { fill: #2563eb; }
-    .tagline { fill: #64748b; }
-    @media (prefers-color-scheme: dark) {
-      .wordmark { fill: #f8fafc; }
-      .accent { fill: #60a5fa; }
-      .tagline { fill: #94a3b8; }
-    }
-  </style>
   <defs>
     <linearGradient id="brand" x1="6" y1="6" x2="60" y2="60" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#3B82F6"/>
-      <stop offset="1" stop-color="#14B8A6"/>
+      <stop stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#2DD4BF"/>
     </linearGradient>
   </defs>
 
@@ -24,7 +14,7 @@
   <path d="M10 40C18 37.2 25.5 38.3 32 43V55C25.7 50.2 18.2 49 10 52V40Z" fill="white" fill-opacity="0.22" stroke="white" stroke-width="2" stroke-linejoin="round"/>
   <path d="M54 40C46 37.2 38.5 38.3 32 43V55C38.3 50.2 45.8 49 54 52V40Z" fill="white" fill-opacity="0.22" stroke="white" stroke-width="2" stroke-linejoin="round"/>
 
-  <text class="wordmark" x="78" y="39" font-family="Inter, Arial, sans-serif" font-size="29" font-weight="800" letter-spacing="-1.1">HP</text>
-  <text class="accent" x="116" y="39" font-family="Inter, Arial, sans-serif" font-size="29" font-weight="800" letter-spacing="-1.1">Learny</text>
-  <text class="tagline" x="80" y="53" font-family="Inter, Arial, sans-serif" font-size="8" font-weight="700" letter-spacing="2.1">LEARN - TEACH - GROW</text>
+  <text x="78" y="39" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="29" font-weight="800" letter-spacing="-1.1">HP</text>
+  <text x="116" y="39" fill="#60A5FA" font-family="Inter, Arial, sans-serif" font-size="29" font-weight="800" letter-spacing="-1.1">Learny</text>
+  <text x="80" y="53" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="8" font-weight="700" letter-spacing="2.1">LEARN - TEACH - GROW</text>
 </svg>

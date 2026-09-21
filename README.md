@@ -1,116 +1,194 @@
-# Pet LMS
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="public/logo-light.svg">
+    <img src="public/logo-light.svg" alt="HP Learny logo" width="240">
+  </picture>
 
-Pet LMS is a course platform where teachers create and publish courses with chapters, videos, and attachments, and students enroll and track their progress.
+# HP Learny
 
-## Tech stack
+**A full-stack learning management system for publishing, selling, and completing video courses.**
 
-| Area            | Technology                                                               |
-| --------------- | ------------------------------------------------------------------------ |
-| App             | TypeScript, React 18, React Router 7 (server rendering), Vite 5, Node.js |
-| UI              | Tailwind CSS, Radix UI components, Quill rich text editor                |
-| Database        | Neon PostgreSQL, Drizzle ORM and Drizzle Kit migrations                  |
-| Authentication  | Clerk; teacher access is controlled by `TEACHER_USER_IDS`                |
-| Payments        | Stripe Checkout and webhooks (in progress)                               |
-| Media and files | Bunny.net Stream and Storage, with Uppy for uploads                      |
-| Analytics       | PostHog client analytics                                                 |
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![React Router](https://img.shields.io/badge/React_Router-7-CA4245?logo=reactrouter&logoColor=white)](https://reactrouter.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql&logoColor=white)](https://neon.tech/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
-## Get started
+</div>
 
-You need Node.js 20 or later, npm, and credentials for Neon and Clerk. Configure Bunny.net to use video and file uploads. Stripe payment integration is in progress; configure Stripe credentials when working on it.
+## Overview
 
-1. Install dependencies and create your local environment file:
+HP Learny is a responsive course platform built around two complete user journeys:
 
-   ```sh
-   npm ci
-   cp .env.example .env
-   ```
+- **Students** can browse published courses, enroll, stream protected video lessons, download course resources, and track chapter-by-chapter progress.
+- **Teachers** can create a course, build and reorder its curriculum, upload videos and attachments, control free previews, publish content, and review sales analytics.
 
-2. Replace the placeholders in `.env` with your service credentials. The two database URLs must point to the **same Neon project, branch, and database**. Use the pooled URL (hostname containing `-pooler`) for `DATABASE_URL` and the direct URL for `DATABASE_URL_UNPOOLED`. Keep `.env` local and put production secrets in your host's secret store.
+The project demonstrates a production-oriented React architecture: server-rendered routes, authenticated loaders and actions, relational data modeling, direct-to-video-platform uploads, and third-party service integration.
 
-   | Variables                                   | Used for                                                               |
-   | ------------------------------------------- | ---------------------------------------------------------------------- |
-   | `DATABASE_URL`, `DATABASE_URL_UNPOOLED`     | Application queries and schema setup, respectively                     |
-   | `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | Sign-in and server-side authentication                                 |
-   | `TEACHER_USER_IDS`                          | Comma-separated Clerk user IDs allowed to manage courses               |
-   | `ENABLE_WHITELIST`, `USER_EMAIL_WHITELIST`  | Optional email allowlist when `ENABLE_WHITELIST=true`                  |
-   | `STRIPE_API_KEY`, `STRIPE_WEBHOOK_SECRET`   | Checkout and webhook verification                                      |
-   | `BUNNY_*`                                   | Video streaming and file storage; see `.env.example` for the full list |
+## Product capabilities
 
-3. Prepare the database. For a new database with an empty `public` schema, run both commands. For an existing Pet LMS database, run only the migration command:
+| Experience        | Capabilities                                                                                                                           |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Course discovery  | Published-course catalog, category-aware data model, course cards, and progress indicators                                             |
+| Learning          | Protected and free-preview chapters, signed video playback, downloadable attachments, completion tracking, and next-chapter navigation |
+| Course authoring  | Draft/publish workflow, course metadata and pricing, chapter creation, drag-and-drop ordering, and per-chapter access controls         |
+| Media management  | Resumable video uploads up to 5 GB, encoding-status polling, tokenized playback URLs, image uploads, and CDN-backed attachments        |
+| Access control    | Clerk authentication, configurable teacher roles, optional learner email allowlist, and ownership checks on course mutations           |
+| Business insights | Per-course revenue visualization plus total sales and revenue summaries                                                                |
+| Operations        | Health-check endpoint, versioned database migrations, environment-based configuration                                                  |
 
-   ```sh
-   npm run db:bootstrap # new, empty database only
-   npm run db:migrate
-   ```
+## Engineering highlights
 
-4. Start the development server and open the URL printed in the terminal:
+- **Full-stack React Router 7:** loaders and actions keep data fetching and mutations close to their routes while server rendering delivers the initial UI.
+- **Type-safe persistence:** Drizzle ORM models eight related PostgreSQL tables with indexed lookups, cascading deletes, unique enrollment/progress constraints, and committed SQL migrations.
+- **Scalable media path:** Uppy sends large videos directly to Bunny Stream with the tus resumable-upload protocol; the server issues short-lived upload credentials and signed playback URLs without proxying multi-gigabyte files through the app.
+- **Progressive authorization:** authentication, teacher-role checks, optional email access controls, ownership validation, and locked paid chapters protect each layer of the product flow.
+- **Deliberate content lifecycle:** courses and chapters remain in draft until their required fields are complete, preventing incomplete content from reaching students.
 
-   ```sh
-   npm run dev
-   ```
+## Architecture
 
-   To manage courses, set `TEACHER_USER_IDS` to your Clerk user ID. You can optionally run `npm run db:seed` to add course categories.
+```mermaid
+flowchart LR
+    Browser[React client] --> RR[React Router 7<br/>SSR, loaders & actions]
+    RR --> Clerk[Clerk<br/>authentication]
+    RR --> Drizzle[Drizzle ORM]
+    Drizzle --> Neon[(Neon PostgreSQL)]
+    Browser -->|resumable video upload| Bunny[Bunny Stream & Storage]
+    RR -->|signed upload/playback access| Bunny
+    RR -. checkout integration .-> Stripe[Stripe]
+    Browser --> PostHog[PostHog analytics]
+```
 
-Before committing, run `npm run lint` and `npm run typecheck`. To check a production build locally, run `npm run build` followed by `npm run start`.
+## Technology stack
 
-## Routing
+| Area                 | Technology                                                          |
+| -------------------- | ------------------------------------------------------------------- |
+| Application          | TypeScript, React 18, React Router 7, Vite 5, Node.js 20+           |
+| UI                   | Tailwind CSS, Radix UI, Lucide icons, Recharts, `@hello-pangea/dnd` |
+| Forms and validation | Conform and Zod                                                     |
+| Database             | Neon PostgreSQL, Drizzle ORM, Drizzle Kit                           |
+| Authentication       | Clerk                                                               |
+| Video and files      | Bunny Stream, Bunny Storage, Uppy, tus                              |
+| Payments             | Stripe webhook foundation; hosted checkout is in progress           |
+| Product analytics    | PostHog                                                             |
 
-Routes are defined explicitly in `app/routes.ts` using React Router's `route`, `layout`, and `index` helpers. Add or change URL paths there; route module filenames do not determine URLs.
+## Current status
 
-## Database
+The core authoring, enrollment, learning, media, progress, and teacher analytics flows are implemented. Enrollment currently creates the purchase record directly, which makes the complete course journey testable during development. Stripe signature verification and webhook handling are present, but creating and redirecting to a hosted Stripe Checkout session is still in progress.
 
-Pet LMS uses Neon PostgreSQL and Drizzle. The schema lives in `app/lib/schema.ts`; versioned changes live in `drizzle/`. The current staging database is `pet_lms` on the `hp-learny` project's `staging` branch. Keep Pet LMS in its own database: `neondb` is used by another app.
+Other planned improvements are an automated test suite and restoring the search/category controls whose server-side filtering support already exists.
 
-The app needs two URLs for the **same project, branch, and database**:
+## Run locally
 
-- `DATABASE_URL`: pooled Neon connection for application queries.
-- `DATABASE_URL_UNPOOLED`: direct Neon connection for bootstrap and migrations.
+### Prerequisites
 
-Use `.env.example` as the variable checklist. Keep local values in the ignored `.env` file and production values in your host's secret store.
+- Node.js 20 or later and npm
+- A Neon PostgreSQL database
+- A Clerk application
+- Bunny Stream and Storage credentials for media uploads
+- Stripe credentials only when working on the payment integration
 
-The staging `pet_lms` database already has the initial schema and Drizzle baseline, so it needs only `npm run db:migrate` during setup.
+### 1. Install and configure
 
-### Set up a production database
+```sh
+git clone YOUR_REPOSITORY_URL hp-learny
+cd hp-learny
+npm ci
+cp .env.example .env
+```
 
-1. Create a separate, empty `pet_lms` database on the production Neon branch. In this repo's linked Neon project, the CLI command is:
+Replace the placeholders in `.env`. The two database URLs must refer to the **same Neon project, branch, and database**: use the pooled URL (a hostname containing `-pooler`) for `DATABASE_URL` and the direct URL for `DATABASE_URL_UNPOOLED`.
 
-   ```sh
-   neon databases create --branch production --name pet_lms
-   ```
+| Variables                                   | Purpose                                                                 |
+| ------------------------------------------- | ----------------------------------------------------------------------- |
+| `DATABASE_URL`, `DATABASE_URL_UNPOOLED`     | Runtime queries and schema operations                                   |
+| `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | Client and server authentication                                        |
+| `TEACHER_USER_IDS`                          | Comma-separated Clerk IDs allowed to author courses                     |
+| `ENABLE_WHITELIST`, `USER_EMAIL_WHITELIST`  | Optional learner email allowlist                                        |
+| `BUNNY_*`                                   | Video creation, upload, signed playback, file storage, and CDN delivery |
+| `STRIPE_API_KEY`, `STRIPE_WEBHOOK_SECRET`   | Checkout development and webhook verification                           |
 
-   You can do the same in the Neon Console. Do not choose the existing `neondb` database.
+Keep `.env` local and store production values in the deployment platform's secret manager.
 
-2. Get that database's direct and pooled connection strings from the Neon Console, or use:
+### 2. Prepare the database
 
-   ```sh
-   neon connection-string production --database-name pet_lms
-   neon connection-string production --database-name pet_lms --pooled
-   ```
+For a new database with an empty `public` schema:
 
-   Store the pooled URL as `DATABASE_URL` and the direct URL as `DATABASE_URL_UNPOOLED` in the production environment. Check that both URLs end in `/pet_lms` and point to the production branch. The direct hostname must not contain `-pooler`.
+```sh
+npm run db:bootstrap
+npm run db:migrate
+```
 
-3. From a release environment configured with those production variables, install dependencies and initialize the **empty** database:
+For an existing HP Learny database, run only `npm run db:migrate`. Optionally add the default course categories with:
 
-   ```sh
-   npm ci --include=dev
-   npm run db:bootstrap
-   npm run db:migrate
-   ```
+```sh
+npm run db:seed
+```
 
-   `db:bootstrap` creates the eight application tables from the frozen initial Drizzle schema and refuses to run if the public schema already contains tables. `db:migrate` records the initial baseline and applies later migrations. If you are adopting an existing Pet LMS database with those tables, skip bootstrap and run only `db:migrate`.
+### 3. Start the app
 
-4. Build and start the app:
+```sh
+npm run dev
+```
 
-   ```sh
-   npm run build
-   npm prune --omit=dev
-   npm run start
-   ```
+Open the URL printed in the terminal. Add your Clerk user ID to `TEACHER_USER_IDS` to expose the teacher workspace.
 
-   Run `db:migrate` once before each later release. `npm run db:seed` optionally inserts the course categories; it is not required for schema setup.
+## Useful commands
 
-### Change the schema
+| Command               | Description                                        |
+| --------------------- | -------------------------------------------------- |
+| `npm run dev`         | Start the development server with hot reload       |
+| `npm run build`       | Create the production client and server bundles    |
+| `npm run start`       | Serve the production build                         |
+| `npm run lint`        | Run ESLint across the project                      |
+| `npm run typecheck`   | Generate route types and run TypeScript checks     |
+| `npm run format`      | Format the repository with Prettier                |
+| `npm run db:generate` | Generate a Drizzle migration after a schema change |
+| `npm run db:migrate`  | Apply committed database migrations                |
+| `npm run db:seed`     | Insert the default course categories               |
 
-Edit `app/lib/schema.ts`, run `npm run db:generate`, review and commit the generated SQL, then test `npm run db:migrate` on a Neon branch before applying it to production. Keep `database/bootstrap.sql` fixed as the initial schema; later changes belong in `drizzle/` migrations. The initial migration checks that the eight tables exist, so it cannot initialize an empty database by itself.
+Before committing, run `npm run lint` and `npm run typecheck`. To verify the production path locally, run `npm run build` followed by `npm run start`.
 
-`npx tsx scripts/check-db.ts` runs a create/read/update/delete check. Use it only on an isolated Neon branch; it removes its temporary rows afterward.
+## Project structure
+
+```text
+app/
+├── components/              Shared UI primitives and application components
+├── lib/                     Database, auth, media, analytics, and domain queries
+├── routes/
+│   ├── api/                 Resource routes for uploads, publishing, and checkout
+│   ├── auth/                Clerk sign-in and sign-up screens
+│   ├── courses/             Student course and chapter experience
+│   └── dashboard/teacher/   Course authoring and sales analytics
+├── root.tsx                 Application shell, middleware, and global providers
+└── routes.ts                Explicit route configuration
+database/bootstrap.sql       Frozen schema for a brand-new database
+drizzle/                     Versioned SQL migrations and snapshots
+scripts/                     Bootstrap, migration, seed, and database-check scripts
+Dockerfile                   Multi-stage production image
+```
+
+Routes are configured explicitly in `app/routes.ts`; filenames do not determine public URLs.
+
+## Database workflow
+
+The source of truth is `app/lib/schema.ts`. To change the schema:
+
+1. Update the Drizzle schema.
+2. Run `npm run db:generate`.
+3. Review and commit the generated SQL in `drizzle/`.
+4. Test `npm run db:migrate` against an isolated Neon branch before production.
+
+Keep `database/bootstrap.sql` fixed as the initial schema. The bootstrap command intentionally refuses to run against a non-empty `public` schema. For an isolated CRUD smoke test, run `npx tsx scripts/check-db.ts`; it removes its temporary records when complete.
+
+## Production deployment
+
+Configure the same environment variables in the deployment platform, apply migrations once per release, and build the included Docker image:
+
+```sh
+docker build -t hp-learny .
+docker run --env-file .env.prod -p 8080:8080 hp-learny
+```
+
+The application exposes `GET /healthcheck` for container and platform health probes.
