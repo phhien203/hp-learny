@@ -92,7 +92,7 @@ Other planned improvements are an automated test suite and restoring the search/
 ### 1. Install and configure
 
 ```sh
-git clone YOUR_REPOSITORY_URL hp-learny
+git clone https://github.com/phhien203/hp-learny hp-learny
 cd hp-learny
 npm ci
 cp .env.example .env
