@@ -8,13 +8,20 @@ export function SearchInput() {
   const query = searchParams.get('q') ?? ''
   const [value, setValue] = useState(query)
   const pendingSearch = useRef<number>()
+  const submittedSearch = useRef<string>()
   const navigate = useNavigate()
-  const { pathname } = useLocation()
+  const { pathname, search, key } = useLocation()
 
   useEffect(() => {
-    setValue(query)
-    return () => clearTimeout(pendingSearch.current)
-  }, [query, searchParams])
+    const isSearchCommit = submittedSearch.current === `${pathname}${search}`
+    submittedSearch.current = undefined
+    if (!isSearchCommit) {
+      clearTimeout(pendingSearch.current)
+      setValue(query)
+    }
+  }, [query, pathname, search, key])
+
+  useEffect(() => () => clearTimeout(pendingSearch.current), [])
 
   function updateSearch(nextValue: string) {
     setValue(nextValue)
@@ -26,8 +33,11 @@ export function SearchInput() {
       } else {
         params.delete('q')
       }
-      const search = params.toString()
-      navigate(search ? `${pathname}?${search}` : pathname)
+      const nextSearch = params.toString()
+      const url = nextSearch ? `${pathname}?${nextSearch}` : pathname
+      // A completed search must not replace edits made while its loader ran.
+      submittedSearch.current = url
+      navigate(url)
     }, 350)
   }
 
