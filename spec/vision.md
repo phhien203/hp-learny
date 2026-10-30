@@ -4,10 +4,13 @@
 
 ## Product principles
 
-- <!-- Durable principle: user, value, boundary, or tradeoff. -->
-- <!-- One compact, decision-useful fragment per line. -->
+- Help teachers publish video courses and help students complete them.
+- Keep authoring, discovery, enrollment, and learning clear on mobile and desktop.
+- Protect teacher-owned content and student access. Free previews must be explicit.
+- Preserve saved progress and course content across product changes.
 
 ## Current direction
 
-- <!-- Current stretch: outcome, why now, and material constraint. -->
-- <!-- Near-term priority or sequencing rule, if needed. -->
+- Make the existing teacher-to-student journey reliable before expanding the product.
+- Complete paid enrollment through verified Stripe payments. The current direct-enrollment flow is not production payment proof.
+- Restore course search and category controls, then add focused regression coverage for access, enrollment, publishing, and progress.
