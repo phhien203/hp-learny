@@ -9,6 +9,8 @@ import { isWhitelistedUser } from '~/lib/user-role.server'
 import CoursesList, {
   CourseWithProgressWithCategory,
 } from './components/CoursesList'
+import { SearchInput } from '~/components/SearchInput'
+import { Categories } from '~/components/Categories'
 
 export async function loader(args: LoaderFunctionArgs) {
   const { userId } = await getAuth(args)
@@ -34,22 +36,26 @@ export async function loader(args: LoaderFunctionArgs) {
     orderBy: [asc(categoriesTable.name)],
   })
 
-  const courses = await getCourses({ userId, ...args.params })
+  const searchParams = new URL(args.request.url).searchParams
+  const courses = await getCourses({
+    userId,
+    title: searchParams.get('q') || undefined,
+    categoryId: searchParams.get('categoryId') || undefined,
+  })
 
   return data({ categories, courses })
 }
 
 export default function SearchPage() {
-  const { courses } = useLoaderData<typeof loader>()
+  const { categories, courses } = useLoaderData<typeof loader>()
 
   return (
     <>
       <div className="px-6 pt-6 md:mb-0 md:mt-6 md:hidden">
-        {/* <SearchInput /> */}
+        <SearchInput />
       </div>
       <div className="p-6">
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {/* <Categories items={categories as any[]} /> */}
+        <Categories items={categories} />
 
         <CoursesList
           items={courses as unknown as CourseWithProgressWithCategory[]}

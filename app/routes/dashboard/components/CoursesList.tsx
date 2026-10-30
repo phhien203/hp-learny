@@ -30,7 +30,7 @@ export default function CoursesList({ items }: CoursesListProps) {
       </div>
       {items.length === 0 && (
         <div className="mt-10 text-center text-sm text-muted-foreground">
-          No courses found
+          No courses found. Try a different search term or category.
         </div>
       )}
     </div>
