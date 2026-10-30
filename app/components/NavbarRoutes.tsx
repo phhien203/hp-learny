@@ -1,7 +1,8 @@
 import { UserButton } from '@clerk/react-router'
 import { LogOut } from 'lucide-react'
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router'
 import { Button } from './ui/button'
+import { SearchInput } from './SearchInput'
 
 export function NavbarRoutes({ isTeacher }: { isTeacher: boolean }) {
   const location = useLocation()
@@ -13,7 +14,9 @@ export function NavbarRoutes({ isTeacher }: { isTeacher: boolean }) {
   return (
     <>
       {isSearchPage && (
-        <div className="hidden md:block">{/* <SearchInput /> */}</div>
+        <div className="hidden md:block">
+          <SearchInput />
+        </div>
       )}
       <div className="ml-auto flex gap-x-2">
         {isTeacherPage || isCoursePage ? (

@@ -30,7 +30,7 @@ The project demonstrates a production-oriented React architecture: server-render
 
 | Experience        | Capabilities                                                                                                                           |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Course discovery  | Published-course catalog, category-aware data model, course cards, and progress indicators                                             |
+| Course discovery  | Published-course title search, URL-preserved search and category filters, course cards, and progress indicators                        |
 | Learning          | Protected and free-preview chapters, signed video playback, downloadable attachments, completion tracking, and next-chapter navigation |
 | Course authoring  | Draft/publish workflow, course metadata and pricing, chapter creation, drag-and-drop ordering, and per-chapter access controls         |
 | Media management  | Resumable video uploads up to 5 GB, encoding-status polling, tokenized playback URLs, image uploads, and CDN-backed attachments        |
@@ -77,7 +77,7 @@ flowchart LR
 
 The core authoring, enrollment, learning, media, progress, and teacher analytics flows are implemented. Enrollment currently creates the purchase record directly, which makes the complete course journey testable during development. Stripe signature verification and webhook handling are present, but creating and redirecting to a hosted Stripe Checkout session is still in progress.
 
-Other planned improvements are an automated test suite and restoring the search/category controls whose server-side filtering support already exists.
+The catalog supports title search on desktop and mobile. Search links preserve `q` and `categoryId` on refresh; clearing search keeps the category selected. Other planned improvements include an automated test suite.
 
 ## Run locally
 
